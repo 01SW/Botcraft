@@ -3,30 +3,32 @@
 
 #include "protocolCraft/Types/Particles/ParticleOptions.hpp"
 
+#if PROTOCOL_VERSION < 768 /* < 1.21.2 */
+#include <array>
+#endif
+
 namespace ProtocolCraft
 {
     class DustColorTransitionOptions : public ParticleOptions
     {
-#if PROTOCOL_VERSION < 766 /* < 1.20.5 */
-        DECLARE_FIELDS(
-            (float,   float,     float,    float, float, float,   float),
-            (FromRed, FromGreen, FromBlue, Scale, ToRed, ToGreen, ToBlue)
-        );
+#if PROTOCOL_VERSION < 768 /* < 1.21.2 */
+        SERIALIZED_FIELD(FromColor, std::array<float, 3>);
 #else
-        DECLARE_FIELDS(
-            (float,   float,     float,    float, float,   float,  float),
-            (FromRed, FromGreen, FromBlue, ToRed, ToGreen, ToBlue, Scale)
-        );
+        SERIALIZED_FIELD(FromColor, int);
 #endif
-        DECLARE_READ_WRITE_SERIALIZE;
+#if PROTOCOL_VERSION < 766 /* < 1.20.5 */
+        SERIALIZED_FIELD(Scale, float);
+#endif
+#if PROTOCOL_VERSION < 768 /* < 1.21.2 */
+        SERIALIZED_FIELD(ToColor, std::array<float, 3>);
+#else
+        SERIALIZED_FIELD(ToColor, int);
+#endif
+#if PROTOCOL_VERSION > 765 /* > 1.20.4 */
+        SERIALIZED_FIELD(Scale, float);
+#endif
 
-        GETTER_SETTER(FromRed);
-        GETTER_SETTER(FromGreen);
-        GETTER_SETTER(FromBlue);
-        GETTER_SETTER(Scale);
-        GETTER_SETTER(ToRed);
-        GETTER_SETTER(ToGreen);
-        GETTER_SETTER(ToBlue);
+        DECLARE_READ_WRITE_SERIALIZE;
     };
 }
 #endif

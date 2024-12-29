@@ -7,15 +7,14 @@ namespace ProtocolCraft
     class ServerboundContainerClosePacket : public BaseMessage<ServerboundContainerClosePacket>
     {
     public:
-
         static constexpr std::string_view packet_name = "Container Close";
 
-        DECLARE_FIELDS(
-            (unsigned char),
-            (ContainerId)
-        );
-        DECLARE_READ_WRITE_SERIALIZE;
+#if PROTOCOL_VERSION < 768 /* < 1.21.2 */
+        SERIALIZED_FIELD(ContainerId, unsigned char);
+#else
+        SERIALIZED_FIELD(ContainerId, VarInt);
+#endif
 
-        GETTER_SETTER(ContainerId);
+        DECLARE_READ_WRITE_SERIALIZE;
     };
 } //ProtocolCraft

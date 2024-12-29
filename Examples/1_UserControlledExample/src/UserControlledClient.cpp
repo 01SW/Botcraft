@@ -32,6 +32,8 @@ UserControlledClient::UserControlledClient(bool online, bool use_renderer_) : Ma
         network_manager = std::make_shared<NetworkManager>(ConnectionState::Play);
         world = std::make_shared<World>(false);
         entity_manager = std::make_shared<EntityManager>(network_manager);
+        // Dummy login packet to init local player
+        ClientboundLoginPacket().Dispatch(entity_manager.get());
         inventory_manager = std::make_shared<InventoryManager>();
 
         should_be_closed = false;
@@ -343,9 +345,13 @@ void UserControlledClient::KeyBoardCallback(const std::array<bool, static_cast<i
 }
 #endif
 
+#if PROTOCOL_VERSION < 768 /* < 1.21.2 */
 void UserControlledClient::Handle(ClientboundGameProfilePacket& msg)
+#else
+void UserControlledClient::Handle(ClientboundLoginFinishedPacket & msg)
+#endif
 {
-    Botcraft::ManagersClient::Handle(msg);
+    ManagersClient::Handle(msg);
 
 #if USE_GUI
     if (use_renderer)

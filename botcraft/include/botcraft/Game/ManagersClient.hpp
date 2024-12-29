@@ -63,11 +63,16 @@ namespace Botcraft
 
     protected:
         using ConnectionClient::Handle; // Don't hide all Handle() functions from base classes
+#if PROTOCOL_VERSION < 768 /* < 1.21.2 */
         virtual void Handle(ProtocolCraft::ClientboundGameProfilePacket& msg) override;
+#else
+        virtual void Handle(ProtocolCraft::ClientboundLoginFinishedPacket& msg) override;
+#endif
         virtual void Handle(ProtocolCraft::ClientboundChangeDifficultyPacket& msg) override;
         virtual void Handle(ProtocolCraft::ClientboundLoginPacket& msg) override;
         virtual void Handle(ProtocolCraft::ClientboundSetHealthPacket& msg) override;
         virtual void Handle(ProtocolCraft::ClientboundPlayerAbilitiesPacket& msg) override;
+        virtual void Handle(ProtocolCraft::ClientboundPlayerPositionPacket& msg) override;
         virtual void Handle(ProtocolCraft::ClientboundRespawnPacket& msg) override;
         virtual void Handle(ProtocolCraft::ClientboundSetTimePacket& msg) override;
 #if PROTOCOL_VERSION < 761 /* < 1.19.3 */

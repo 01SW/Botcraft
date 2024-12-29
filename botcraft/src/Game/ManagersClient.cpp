@@ -172,7 +172,11 @@ namespace Botcraft
     }
 
 
+#if PROTOCOL_VERSION < 768 /* < 1.21.2 */
     void ManagersClient::Handle(ClientboundGameProfilePacket& msg)
+#else
+    void ManagersClient::Handle(ClientboundLoginFinishedPacket& msg)
+#endif
     {
         // Create all handlers
         if (!world)
@@ -211,6 +215,10 @@ namespace Botcraft
 
     void ManagersClient::Handle(ClientboundLoginPacket& msg)
     {
+#if PROTOCOL_VERSION > 768 /* > 1.21.3 */
+        ConnectionClient::Handle(msg);
+#endif
+
 #if PROTOCOL_VERSION > 737 /* > 1.16.1 */
         is_hardcore = msg.GetHardcore();
 #else
@@ -248,14 +256,26 @@ namespace Botcraft
         info.SetChatColors(true);
         info.SetModelCustomisation(0xFF);
         info.SetMainHand(1); // 1 is right handed, 0 is left handed
+#if PROTOCOL_VERSION > 767 /* > 1.21.1 */
+        info.SetParticleStatus(2); // 0 is "all", 1 is "decreased" and 2 is "minimal"
+#endif
         settings_msg->SetClientInformation(info);
 #endif
 
         network_manager->Send(settings_msg);
     }
 
+    void ManagersClient::Handle(ClientboundPlayerPositionPacket& msg)
+    {
+        // Override the ConnectionClient Handle as the teleport confirmation is sent by the physics manager instead
+    }
+
     void ManagersClient::Handle(ClientboundRespawnPacket& msg)
     {
+#if PROTOCOL_VERSION > 768 /* > 1.21.3 */
+        ConnectionClient::Handle(msg);
+#endif
+
 #if PROTOCOL_VERSION < 464 /* < 1.14 */
         difficulty = static_cast<Difficulty>(msg.GetDifficulty());
 #endif
@@ -263,7 +283,7 @@ namespace Botcraft
 
     void ManagersClient::Handle(ClientboundSetTimePacket& msg)
     {
-        // abs because the server multiplies by -1 to indicate fixed daytime
+        // abs because the server multiplies by -1 to indicate fixed daytime for versions < 1.21.2
         day_time = std::abs(msg.GetDayTime()) % 24000;
     }
 

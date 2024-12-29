@@ -7,17 +7,16 @@ namespace ProtocolCraft
     class ClientboundContainerSetDataPacket : public BaseMessage<ClientboundContainerSetDataPacket>
     {
     public:
-
         static constexpr std::string_view packet_name = "Container Set Data";
 
-        DECLARE_FIELDS(
-            (unsigned char, short, short),
-            (ContainerId,   Id_,   Value)
-        );
-        DECLARE_READ_WRITE_SERIALIZE;
+#if PROTOCOL_VERSION < 768 /* < 1.21.2 */
+        SERIALIZED_FIELD(ContainerId, unsigned char);
+#else
+        SERIALIZED_FIELD(ContainerId, VarInt);
+#endif
+        SERIALIZED_FIELD(Id_, short);
+        SERIALIZED_FIELD(Value, short);
 
-        GETTER_SETTER(ContainerId);
-        GETTER_SETTER(Id_);
-        GETTER_SETTER(Value);
+        DECLARE_READ_WRITE_SERIALIZE;
     };
 } //ProtocolCraft

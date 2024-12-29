@@ -21,6 +21,12 @@ namespace ProtocolCraft
         UpdateListed,
         UpdateLatency,
         UpdateDisplayName,
+#if PROTOCOL_VERSION > 768 /* > 1.21.3 */
+        UpdateHat,
+#endif
+#if PROTOCOL_VERSION > 767 /* > 1.21.1 */
+        UpdateListOrder,
+#endif
         NUM_PLAYERINFOUPDATEACTION
     };
 
@@ -36,13 +42,20 @@ namespace ProtocolCraft
 
         int latency = 0;
 
+#if PROTOCOL_VERSION > 768 /* > 1.21.3 */
+        bool show_hat = false;
+#endif
+
+#if PROTOCOL_VERSION > 767 /* > 1.21.1 */
+        int list_order = 0;
+#endif
+
         std::optional<Chat> display_name;
     };
 
     class ClientboundPlayerInfoUpdatePacket : public BaseMessage<ClientboundPlayerInfoUpdatePacket>
     {
     public:
-
         static constexpr std::string_view packet_name = "Player Info Update";
 
     private:
@@ -104,6 +117,16 @@ namespace ProtocolCraft
                     case PlayerInfoUpdateAction::UpdateDisplayName:
                         entry.display_name = ReadData<std::optional<Chat>>(iter, length);
                         break;
+#if PROTOCOL_VERSION > 768 /* > 1.21.3 */
+                    case PlayerInfoUpdateAction::UpdateHat:
+                        entry.show_hat = ReadData<bool>(iter, length);
+                        break;
+#endif
+#if PROTOCOL_VERSION > 767 /* > 1.21.1 */
+                    case PlayerInfoUpdateAction::UpdateListOrder:
+                        entry.list_order = ReadData<VarInt>(iter, length);
+                        break;
+#endif
                     default:
                         break;
                     }
@@ -141,6 +164,16 @@ namespace ProtocolCraft
                     case PlayerInfoUpdateAction::UpdateDisplayName:
                         WriteData<std::optional<Chat>>(p.second.display_name, container);
                         break;
+#if PROTOCOL_VERSION > 768 /* > 1.21.3 */
+                    case PlayerInfoUpdateAction::UpdateHat:
+                        WriteData<bool>(p.second.show_hat, container);
+                        break;
+#endif
+#if PROTOCOL_VERSION > 767 /* > 1.21.1 */
+                    case PlayerInfoUpdateAction::UpdateListOrder:
+                        WriteData<VarInt>(p.second.list_order, container);
+                        break;
+#endif
                     default:
                         break;
                     }
@@ -183,6 +216,16 @@ namespace ProtocolCraft
                             entry["display_name"] = p.second.display_name.value();
                         }
                         break;
+#if PROTOCOL_VERSION > 768 /* > 1.21.3 */
+                    case PlayerInfoUpdateAction::UpdateHat:
+                        entry["show_hat"] = p.second.show_hat;
+                        break;
+#endif
+#if PROTOCOL_VERSION > 767 /* > 1.21.1 */
+                    case PlayerInfoUpdateAction::UpdateListOrder:
+                        entry["list_order"] = p.second.list_order;
+                        break;
+#endif
                     default:
                         break;
                     }
@@ -192,14 +235,10 @@ namespace ProtocolCraft
             return output;
         }
 
-        DECLARE_FIELDS(
-            (Internal::CustomType<std::vector<PlayerInfoUpdateAction>, &THIS::ReadActions, &THIS::WriteActions>, Internal::CustomType<std::map<UUID, PlayerInfoUpdateEntry>, &THIS::ReadEntries, &THIS::WriteEntries, &THIS::SerializeEntries>),
-            (Actions,                                                                                            Entries)
-        );
-        DECLARE_READ_WRITE_SERIALIZE;
+        SERIALIZED_FIELD(Actions, Internal::CustomType<std::vector<PlayerInfoUpdateAction>, &THIS::ReadActions, &THIS::WriteActions>);
+        SERIALIZED_FIELD(Entries, Internal::CustomType<std::map<UUID, PlayerInfoUpdateEntry>, &THIS::ReadEntries, &THIS::WriteEntries, &THIS::SerializeEntries>);
 
-        GETTER_SETTER(Actions);
-        GETTER_SETTER(Entries);
+        DECLARE_READ_WRITE_SERIALIZE;
     };
 } //ProtocolCraft
 #endif

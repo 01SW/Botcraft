@@ -7,16 +7,14 @@ namespace ProtocolCraft
     class ClientboundSetTimePacket : public BaseMessage<ClientboundSetTimePacket>
     {
     public:
-
         static constexpr std::string_view packet_name = "Set Time";
 
-        DECLARE_FIELDS(
-            (long long int, long long int),
-            (GameTime,      DayTime)
-        );
-        DECLARE_READ_WRITE_SERIALIZE;
+        SERIALIZED_FIELD(GameTime, long long int);
+        SERIALIZED_FIELD(DayTime, long long int);
+#if PROTOCOL_VERSION > 767 /* > 1.21.1 */
+        SERIALIZED_FIELD(TickDayTime, bool);
+#endif
 
-        GETTER_SETTER(GameTime);
-        GETTER_SETTER(DayTime);
+        DECLARE_READ_WRITE_SERIALIZE;
     };
 } //ProtocolCraft

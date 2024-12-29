@@ -14,7 +14,7 @@ option(BOTCRAFT_ENCRYPTION "Activate if you want to connect to a server in onlin
 option(BOTCRAFT_BUILD_EXAMPLES "Set to compile examples with the library" ON)
 option(BOTCRAFT_BUILD_TESTS "Activate if you want to build tests" OFF)
 option(BOTCRAFT_BUILD_TESTS_ONLINE "Activate if you want to enable additional on server tests (requires Java)" OFF)
-option(BOTCRAFT_WINDOWS_BETTER_SLEEP "Set to true to use better thread sleep on Windows" OFF)
+option(BOTCRAFT_WINDOWS_BETTER_SLEEP "Set to true to use better thread sleep on Windows" ON)
 option(BOTCRAFT_USE_PRECOMPILED_HEADERS "Set to true to precompile botcraft headers, reducing compilation time with MSVC and Clang, ignored on GCC" ON)
 option(BOTCRAFT_BUILD_DOC "Build documentation (requires Doxygen)" ON)
 
@@ -25,16 +25,18 @@ option(BOTCRAFT_FORCE_LOCAL_GLAD "Set to true to force using a local install of 
 option(BOTCRAFT_FORCE_LOCAL_CATCH "Set to true to force using a local install of catch2 even if already present on the system" OFF)
 option(BOTCRAFT_INSTALL_MC_ASSETS "Install Minecraft assets next to custom ones" ON)
 
-# Only change them if you really know what you are doing, very untested
+# Only change them if you *really* know what you are doing, not supported and very untested, will probably break something
 option(PROTOCOLCRAFT_STATIC "If ON, will build protocolcraft as a static library instead of a dynamic one" OFF)
+mark_as_advanced(PROTOCOLCRAFT_STATIC)
 option(BOTCRAFT_STATIC "If ON, will build botcraft as a static library instead of a dynamic one" OFF)
+mark_as_advanced(BOTCRAFT_STATIC)
 
 set(BOTCRAFT_OUTPUT_DIR "${CMAKE_SOURCE_DIR}" CACHE PATH "Base output build path")
 
 # Version selection stuffs
 set(BOTCRAFT_GAME_VERSION "latest" CACHE STRING "Each version of the game uses a specific protocol. Make sure this matches the version of your server.")
-set(GameVersionValues "1.12.2;1.13;1.13.1;1.13.2;1.14;1.14.1;1.14.2;1.14.3;1.14.4;1.15;1.15.1;1.15.2;1.16;1.16.1;1.16.2;1.16.3;1.16.4;1.16.5;1.17;1.17.1;1.18;1.18.1;1.18.2;1.19;1.19.1;1.19.2;1.19.3;1.19.4;1.20;1.20.1;1.20.2;1.20.3;1.20.4;1.20.5;1.20.6;1.21;1.21.1;latest")
-set(ProtocolVersionValues "340;393;401;404;477;480;485;490;498;573;575;578;735;736;751;753;754;754;755;756;757;757;758;759;760;760;761;762;763;763;764;765;765;766;766;767;767")
+set(GameVersionValues "1.12.2;1.13;1.13.1;1.13.2;1.14;1.14.1;1.14.2;1.14.3;1.14.4;1.15;1.15.1;1.15.2;1.16;1.16.1;1.16.2;1.16.3;1.16.4;1.16.5;1.17;1.17.1;1.18;1.18.1;1.18.2;1.19;1.19.1;1.19.2;1.19.3;1.19.4;1.20;1.20.1;1.20.2;1.20.3;1.20.4;1.20.5;1.20.6;1.21;1.21.1;1.21.2;1.21.3;1.21.4;latest")
+set(ProtocolVersionValues "340;393;401;404;477;480;485;490;498;573;575;578;735;736;751;753;754;754;755;756;757;757;758;759;760;760;761;762;763;763;764;765;765;766;766;767;767;768;768;769")
 set_property(CACHE BOTCRAFT_GAME_VERSION PROPERTY STRINGS ${GameVersionValues})
 
 if(BOTCRAFT_GAME_VERSION STREQUAL "latest")

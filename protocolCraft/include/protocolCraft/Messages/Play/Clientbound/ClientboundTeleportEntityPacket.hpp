@@ -1,27 +1,30 @@
 #pragma once
 
 #include "protocolCraft/BaseMessage.hpp"
+#if PROTOCOL_VERSION > 767 /* > 1.21.1 */
+#include "protocolCraft/Types/PositionMoveRotation.hpp"
+#endif
 
 namespace ProtocolCraft
 {
     class ClientboundTeleportEntityPacket : public BaseMessage<ClientboundTeleportEntityPacket>
     {
     public:
-
         static constexpr std::string_view packet_name = "Teleport Entity";
 
-        DECLARE_FIELDS(
-            (VarInt, double, double, double, unsigned char, unsigned char, bool),
-            (Id_,    X,      Y,      Z,      YRot,          XRot,          OnGround)
-        );
-        DECLARE_READ_WRITE_SERIALIZE;
+        SERIALIZED_FIELD(EntityId, VarInt);
+#if PROTOCOL_VERSION < 768 /* < 1.21.2 */
+        SERIALIZED_FIELD(X, double);
+        SERIALIZED_FIELD(Y, double);
+        SERIALIZED_FIELD(Z, double);
+        SERIALIZED_FIELD(YRot, unsigned char);
+        SERIALIZED_FIELD(XRot, unsigned char);
+#else
+        SERIALIZED_FIELD(Change, PositionMoveRotation);
+        SERIALIZED_FIELD(Relatives, int);
+#endif
+        SERIALIZED_FIELD(OnGround, bool);
 
-        GETTER_SETTER(Id_);
-        GETTER_SETTER(X);
-        GETTER_SETTER(Y);
-        GETTER_SETTER(Z);
-        GETTER_SETTER(YRot);
-        GETTER_SETTER(XRot);
-        GETTER_SETTER(OnGround);
+        DECLARE_READ_WRITE_SERIALIZE;
     };
 } //ProtocolCraft

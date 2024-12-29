@@ -24,7 +24,7 @@ namespace Botcraft
     class NetworkManager : public ProtocolCraft::Handler
     {
     public:
-        NetworkManager(const std::string& address, const std::string& login, const bool force_microsoft_auth);
+        NetworkManager(const std::string& address, const std::string& login, const bool force_microsoft_auth, const std::vector<ProtocolCraft::Handler*>& handlers = {});
         NetworkManager(const std::string& address, const std::string& url, const std::string& email,
             const std::string& pass = std::string());
         // Used to create a dummy network manager that does not fire any message
@@ -32,7 +32,7 @@ namespace Botcraft
         NetworkManager(const ProtocolCraft::ConnectionState constant_connection_state);
         ~NetworkManager();
 
-        void Close();
+        void Stop();
 
         void AddHandler(ProtocolCraft::Handler* h);
         void Send(const std::shared_ptr<ProtocolCraft::Message> msg);
@@ -51,7 +51,11 @@ namespace Botcraft
 
 
         virtual void Handle(ProtocolCraft::ClientboundLoginCompressionPacket& msg) override;
+#if PROTOCOL_VERSION < 768 /* < 1.21.2 */
         virtual void Handle(ProtocolCraft::ClientboundGameProfilePacket& msg) override;
+#else
+        virtual void Handle(ProtocolCraft::ClientboundLoginFinishedPacket& msg) override;
+#endif
         virtual void Handle(ProtocolCraft::ClientboundHelloPacket& msg) override;
         virtual void Handle(ProtocolCraft::ClientboundKeepAlivePacket& msg) override;
 #if PROTOCOL_VERSION > 754 /* > 1.16.5 */

@@ -43,6 +43,14 @@
 #if PROTOCOL_VERSION > 766 /* > 1.20.6 */
 #include "protocolCraft/Types/Components/DataComponentTypeJukeboxPlayable.hpp"
 #endif
+#if PROTOCOL_VERSION > 767 /* > 1.21.1 */
+#include "protocolCraft/Types/Components/DataComponentTypeConsumable.hpp"
+#include "protocolCraft/Types/Components/DataComponentTypeDeathProtection.hpp"
+#include "protocolCraft/Types/Components/DataComponentTypeEquippable.hpp"
+#include "protocolCraft/Types/Components/DataComponentTypeRepairable.hpp"
+#include "protocolCraft/Types/Components/DataComponentTypeUseCooldown.hpp"
+#include "protocolCraft/Types/Components/DataComponentTypeUseRemainder.hpp"
+#endif
 
 #include "protocolCraft/Utilities/AutoSerializedToJson.hpp"
 
@@ -105,6 +113,14 @@ namespace ProtocolCraft
 #if PROTOCOL_VERSION > 766 /* > 1.20.6 */
         DEFINE_NETWORK_TYPE(DataComponentTypeJukeboxPlayable);
 #endif
+#if PROTOCOL_VERSION > 767 /* > 1.21.1 */
+        DEFINE_NETWORK_TYPE(DataComponentTypeConsumable);
+        DEFINE_NETWORK_TYPE(DataComponentTypeDeathProtection);
+        DEFINE_NETWORK_TYPE(DataComponentTypeEquippable);
+        DEFINE_NETWORK_TYPE(DataComponentTypeRepairable);
+        DEFINE_NETWORK_TYPE(DataComponentTypeUseCooldown);
+        DEFINE_NETWORK_TYPE(DataComponentTypeUseRemainder);
+#endif
 
         std::string_view DataComponentTypesToString(const DataComponentTypes type)
         {
@@ -116,6 +132,9 @@ namespace ProtocolCraft
                 "unbreakable",
                 "custom_name",
                 "item_name",
+#if PROTOCOL_VERSION > 767 /* > 1.21.1 */
+                "item_model",
+#endif
                 "lore",
                 "rarity",
                 "enchantments",
@@ -130,8 +149,24 @@ namespace ProtocolCraft
                 "enchantment_glint_override",
                 "intangible_projectile",
                 "food",
+#if PROTOCOL_VERSION < 768 /* < 1.21.2 */
                 "fire_resistant",
+#endif
+#if PROTOCOL_VERSION > 767 /* > 1.21.1 */
+                "consumable",
+                "use_remainder",
+                "use_cooldown",
+                "damage_resistant",
+#endif
                 "tool",
+#if PROTOCOL_VERSION > 767 /* > 1.21.1 */
+                "enchantable",
+                "equippable",
+                "repairable",
+                "glider",
+                "tooltip_style",
+                "death_protection",
+#endif
                 "stored_enchantments",
                 "dyed_color",
                 "map_color",
@@ -216,7 +251,10 @@ namespace ProtocolCraft
             case DataComponentTypes::Recipes:
             case DataComponentTypes::Lock:
             case DataComponentTypes::ContainerLoot:
-                // Component with no nework serializer specified fallback to NBT
+#if PROTOCOL_VERSION > 767 /* > 1.21.1 */
+            case DataComponentTypes::Glider:
+#endif
+                // Component with no network serializer specified fallback to NBT
                 return std::make_shared<DataComponentTypeDefault>();
             case DataComponentTypes::BaseColor:
                 return std::make_shared<DataComponentTypeDyeColor>();
@@ -235,6 +273,9 @@ namespace ProtocolCraft
             case DataComponentTypes::Damage:
             case DataComponentTypes::RepairCost:
             case DataComponentTypes::OminousBottleAmplifier:
+#if PROTOCOL_VERSION > 767 /* > 1.21.1 */
+            case DataComponentTypes::Enchantable:
+#endif
                 return std::make_shared<DataComponentTypeInteger>();
             case DataComponentTypes::AttributeModifiers:
                 return std::make_shared<DataComponentTypeItemAttributeModifiers>();
@@ -268,6 +309,11 @@ namespace ProtocolCraft
             case DataComponentTypes::Profile:
                 return std::make_shared<DataComponentTypeResolvableProfile>();
             case DataComponentTypes::NoteBlockSound:
+#if PROTOCOL_VERSION > 767 /* > 1.21.1 */
+            case DataComponentTypes::DamageResistant:
+            case DataComponentTypes::ItemModel:
+            case DataComponentTypes::TooltipStyle:
+#endif
                 return std::make_shared<DataComponentTypeResourceLocation>();
             case DataComponentTypes::SuspiciousStewEffects:
                 return std::make_shared<DataComponentTypeSuspiciousStewEffects>();
@@ -278,12 +324,28 @@ namespace ProtocolCraft
             case DataComponentTypes::HideAdditionalTooltip:
             case DataComponentTypes::HideTooltip:
             case DataComponentTypes::CreativeSlotLock:
+#if PROTOCOL_VERSION < 768 /* < 1.21.2 */
             case DataComponentTypes::FireResistant:
+#endif
                 return std::make_shared<DataComponentTypeUnit>();
             case DataComponentTypes::WritableBookContent:
                 return std::make_shared<DataComponentTypeWritableBookContent>();
             case DataComponentTypes::WrittenBookContent:
                 return std::make_shared<DataComponentTypeWrittenBookContent>();
+#if PROTOCOL_VERSION > 767 /* > 1.21.1 */
+            case DataComponentTypes::Consumable:
+                return std::make_shared<DataComponentTypeConsumable>();
+            case DataComponentTypes::DeathProtection:
+                return std::make_shared<DataComponentTypeDeathProtection>();
+            case DataComponentTypes::Equippable:
+                return std::make_shared<DataComponentTypeEquippable>();
+            case DataComponentTypes::Repairable:
+                return std::make_shared<DataComponentTypeRepairable>();
+            case DataComponentTypes::UseCooldown:
+                return std::make_shared<DataComponentTypeUseCooldown>();
+            case DataComponentTypes::UseRemainder:
+                return std::make_shared<DataComponentTypeUseRemainder>();
+#endif
             default:
                 // Should never happen but will make the compilers happy
                 throw std::runtime_error("Unable to create data component with id: " + std::to_string(static_cast<int>(type)) + ".");
@@ -438,7 +500,7 @@ namespace ProtocolCraft
                 output["map"].push_back({
                     { "name", DataComponentTypesToString(p.first) },
                     { "data", p.second == nullptr ? nullptr : p.second->Serialize() }
-                    });
+                });
             }
 
             return output;

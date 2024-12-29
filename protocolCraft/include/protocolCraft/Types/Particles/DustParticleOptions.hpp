@@ -3,20 +3,22 @@
 
 #include "protocolCraft/Types/Particles/ParticleOptions.hpp"
 
+#if PROTOCOL_VERSION < 768 /* < 1.21.2 */
+#include <array>
+#endif
+
 namespace ProtocolCraft
 {
     class DustParticleOptions : public ParticleOptions
     {
-        DECLARE_FIELDS(
-            (float, float, float, float),
-            (Red, Green, Blue, Scale)
-        );
-        DECLARE_READ_WRITE_SERIALIZE;
+#if PROTOCOL_VERSION < 768 /* < 1.21.2 */
+        SERIALIZED_FIELD(Color, std::array<float, 3>);
+#else
+        SERIALIZED_FIELD(Color, int);
+#endif
+        SERIALIZED_FIELD(Scale, float);
 
-        GETTER_SETTER(Red);
-        GETTER_SETTER(Green);
-        GETTER_SETTER(Blue);
-        GETTER_SETTER(Scale);
+        DECLARE_READ_WRITE_SERIALIZE;
     };
 }
 #endif

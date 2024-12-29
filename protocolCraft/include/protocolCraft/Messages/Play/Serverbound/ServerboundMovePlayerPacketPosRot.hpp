@@ -7,20 +7,25 @@ namespace ProtocolCraft
     class ServerboundMovePlayerPacketPosRot : public BaseMessage<ServerboundMovePlayerPacketPosRot>
     {
     public:
-
         static constexpr std::string_view packet_name = "Move Player PosRot";
 
-        DECLARE_FIELDS(
-            (double, double, double, float, float, bool),
-            (X,      Y,      Z,      YRot,  XRot,  OnGround)
-        );
-        DECLARE_READ_WRITE_SERIALIZE;
+        SERIALIZED_FIELD(X, double);
+        SERIALIZED_FIELD(Y, double);
+        SERIALIZED_FIELD(Z, double);
+        SERIALIZED_FIELD(YRot, float);
+        SERIALIZED_FIELD(XRot, float);
+#if PROTOCOL_VERSION < 768 /* < 1.21.2 */
+        SERIALIZED_FIELD(OnGround, bool);
+#else
+        SERIALIZED_FIELD_WITHOUT_GETTER_SETTER(Flags, std::bitset<2>);
 
-        GETTER_SETTER(X);
-        GETTER_SETTER(Y);
-        GETTER_SETTER(Z);
-        GETTER_SETTER(YRot);
-        GETTER_SETTER(XRot);
-        GETTER_SETTER(OnGround);
+    public:
+        bool GetOnGround() const { return Flags[0]; }
+        bool GetHorizontalCollision() const { return Flags[1]; }
+        THIS& SetOnGround(const bool b) { Flags.set(0, b); return *this; }
+        THIS& SetHorizontalCollision(const bool b) { Flags.set(1, b); return *this; }
+#endif
+
+        DECLARE_READ_WRITE_SERIALIZE;
     };
 } //ProtocolCraft

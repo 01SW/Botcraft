@@ -21,6 +21,9 @@ namespace ProtocolCraft
             Unbreakable,
             CustomName,
             ItemName,
+#if PROTOCOL_VERSION > 767 /* > 1.21.1 */
+            ItemModel,
+#endif
             Lore,
             Rarity,
             Enchantments,
@@ -35,8 +38,24 @@ namespace ProtocolCraft
             EnchantmentGlintOverride,
             IntangibleProjectile,
             Food,
+#if PROTOCOL_VERSION < 768 /* < 1.21.2 */
             FireResistant,
+#endif
+#if PROTOCOL_VERSION > 767 /* > 1.21.1 */
+            Consumable,
+            UseRemainder,
+            UseCooldown,
+            DamageResistant,
+#endif
             Tool,
+#if PROTOCOL_VERSION > 767 /* > 1.21.1 */
+            Enchantable,
+            Equippable,
+            Repairable,
+            Glider,
+            TooltipStyle,
+            DeathProtection,
+#endif
             StoredEnchantments,
             DyedColor,
             MapColor,

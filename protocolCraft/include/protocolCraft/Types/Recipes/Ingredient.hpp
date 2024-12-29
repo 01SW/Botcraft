@@ -2,19 +2,23 @@
 #pragma once
 
 #include "protocolCraft/NetworkType.hpp"
+#if PROTOCOL_VERSION < 768 /* < 1.21.2 */
 #include "protocolCraft/Types/Item/Slot.hpp"
+#else
+#include "protocolCraft/Types/HolderSet.hpp"
+#endif
 
 namespace ProtocolCraft
 {
     class Ingredient : public NetworkType
     {
-        DECLARE_FIELDS(
-            (std::vector<Slot>),
-            (Items)
-        );
-        DECLARE_READ_WRITE_SERIALIZE;
+#if PROTOCOL_VERSION < 768 /* < 1.21.2 */
+        SERIALIZED_FIELD(Items, std::vector<Slot>);
+#else
+        SERIALIZED_FIELD(Items, HolderSet);
+#endif
 
-        GETTER_SETTER(Items);
+        DECLARE_READ_WRITE_SERIALIZE;
     };
 }
 #endif

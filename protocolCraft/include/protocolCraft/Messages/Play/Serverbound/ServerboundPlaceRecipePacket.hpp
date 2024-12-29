@@ -10,24 +10,20 @@ namespace ProtocolCraft
     class ServerboundPlaceRecipePacket : public BaseMessage<ServerboundPlaceRecipePacket>
     {
     public:
-
         static constexpr std::string_view packet_name = "Place Recipe";
 
-#if PROTOCOL_VERSION < 393 /* < 1.13 */
-        DECLARE_FIELDS(
-            (char,        VarInt, bool),
-            (ContainerId, Recipe, ShiftDown)
-        );
+#if PROTOCOL_VERSION < 768 /* < 1.21.2 */
+        SERIALIZED_FIELD(ContainerId, char);
 #else
-        DECLARE_FIELDS(
-            (char,        Identifier, bool),
-            (ContainerId, Recipe,     ShiftDown)
-        );
+        SERIALIZED_FIELD(ContainerId, VarInt);
 #endif
-        DECLARE_READ_WRITE_SERIALIZE;
+#if PROTOCOL_VERSION < 393 /* < 1.13 */ || PROTOCOL_VERSION > 767 /* > 1.21.1 */
+        SERIALIZED_FIELD(Recipe, VarInt);
+#else
+        SERIALIZED_FIELD(Recipe, Identifier);
+#endif
+        SERIALIZED_FIELD(UseMaxItems, bool);
 
-        GETTER_SETTER(ContainerId);
-        GETTER_SETTER(Recipe);
-        GETTER_SETTER(ShiftDown);
+        DECLARE_READ_WRITE_SERIALIZE;
     };
 } //ProtocolCraft

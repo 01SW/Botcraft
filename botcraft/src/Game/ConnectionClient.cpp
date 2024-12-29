@@ -19,8 +19,7 @@ namespace Botcraft
 
     void ConnectionClient::Connect(const std::string& address, const std::string& login, const bool force_microsoft_account)
     {
-        network_manager = std::make_shared<NetworkManager>(address, login, force_microsoft_account);
-        network_manager->AddHandler(this);
+        network_manager = std::make_shared<NetworkManager>(address, login, force_microsoft_account, std::vector<Handler*>(1, this));
     }
 
     void ConnectionClient::Connect(const std::string &address, const std::string &url, const std::string &email,
@@ -35,7 +34,7 @@ namespace Botcraft
         should_be_closed = true;
         if (network_manager)
         {
-            network_manager->Close();
+            network_manager->Stop();
         }
         network_manager.reset();
     }
@@ -140,6 +139,18 @@ namespace Botcraft
 #endif
 
         should_be_closed = true;
+    }
+#endif
+
+#if PROTOCOL_VERSION > 768 /* > 1.21.3 */
+    void ConnectionClient::Handle(ClientboundLoginPacket& msg)
+    {
+        network_manager->Send(std::make_shared<ServerboundPlayerLoadedPacket>());
+    }
+
+    void ConnectionClient::Handle(ClientboundRespawnPacket& msg)
+    {
+        network_manager->Send(std::make_shared<ServerboundPlayerLoadedPacket>());
     }
 #endif
 } //Botcraft

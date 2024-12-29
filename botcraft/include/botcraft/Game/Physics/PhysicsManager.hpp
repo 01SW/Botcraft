@@ -2,6 +2,7 @@
 
 #include <atomic>
 #include <memory>
+#include <optional>
 #include <thread>
 
 #include "protocolCraft/Handler.hpp"
@@ -52,6 +53,9 @@ namespace Botcraft
 #if PROTOCOL_VERSION > 764 /* > 1.20.2 */
         virtual void Handle(ProtocolCraft::ClientboundTickingStatePacket& msg) override;
 #endif
+#if PROTOCOL_VERSION > 767 /* > 1.21.1 */
+        virtual void Handle(ProtocolCraft::ClientboundPlayerRotationPacket& msg) override;
+#endif
 
     private:
         void Physics();
@@ -99,7 +103,7 @@ namespace Botcraft
         std::shared_ptr<World> world;
 
         std::atomic<bool> should_run;
-        bool teleported;
+        std::optional<int> teleport_id;
 
         int ticks_since_last_position_sent;
 

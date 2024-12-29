@@ -1,4 +1,4 @@
-#if PROTOCOL_VERSION > 761 /* > 1.19.3 */
+#if PROTOCOL_VERSION > 761 /* > 1.19.3 */ && PROTOCOL_VERSION < 768 /* < 1.21.2 */
 #pragma once
 
 #include "protocolCraft/Types/Recipes/RecipeData.hpp"
@@ -8,15 +8,11 @@ namespace ProtocolCraft
 {
     class RecipeDataSmithingTrim : public RecipeData
     {
-        DECLARE_FIELDS(
-            (Ingredient, Ingredient, Ingredient),
-            (Template,   Base,       Addition)
-        );
-        DECLARE_READ_WRITE_SERIALIZE;
+        SERIALIZED_FIELD(Template, Ingredient);
+        SERIALIZED_FIELD(Base, Ingredient);
+        SERIALIZED_FIELD(Addition, Ingredient);
 
-        GETTER_SETTER(Template);
-        GETTER_SETTER(Base);
-        GETTER_SETTER(Addition);
+        DECLARE_READ_WRITE_SERIALIZE;
     };
 }
 #endif

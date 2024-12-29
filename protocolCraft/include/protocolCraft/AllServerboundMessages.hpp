@@ -69,6 +69,9 @@
 #include "protocolCraft/Messages/Play/Serverbound/ServerboundClientCommandPacket.hpp"
 #include "protocolCraft/Messages/Play/Serverbound/ServerboundClientInformationPacket.hpp"
 #include "protocolCraft/Messages/Play/Serverbound/ServerboundCommandSuggestionPacket.hpp"
+#if PROTOCOL_VERSION > 767 /* > 1.21.1 */
+#include "protocolCraft/Messages/Play/Serverbound/ServerboundClientTickEndPacket.hpp"
+#endif
 #if PROTOCOL_VERSION > 763 /* > 1.20.1 */
 #include "protocolCraft/Messages/Play/Serverbound/ServerboundConfigurationAcknowledgedPacket.hpp"
 #endif
@@ -118,7 +121,11 @@
 #endif
 #include "protocolCraft/Messages/Play/Serverbound/ServerboundMoveVehiclePacket.hpp"
 #include "protocolCraft/Messages/Play/Serverbound/ServerboundPaddleBoatPacket.hpp"
-#if PROTOCOL_VERSION > 340 /* > 1.12.2 */
+#if PROTOCOL_VERSION > 768 /* > 1.21.3 */
+#include "protocolCraft/Messages/Play/Serverbound/ServerboundPickItemFromBlockPacket.hpp"
+#include "protocolCraft/Messages/Play/Serverbound/ServerboundPickItemFromEntityPacket.hpp"
+#endif
+#if PROTOCOL_VERSION > 340 /* > 1.12.2 */ && PROTOCOL_VERSION < 769 /* < 1.21.4 */
 #include "protocolCraft/Messages/Play/Serverbound/ServerboundPickItemPacket.hpp"
 #endif
 #if PROTOCOL_VERSION > 763 /* > 1.20.1 */
@@ -129,6 +136,9 @@
 #include "protocolCraft/Messages/Play/Serverbound/ServerboundPlayerActionPacket.hpp"
 #include "protocolCraft/Messages/Play/Serverbound/ServerboundPlayerCommandPacket.hpp"
 #include "protocolCraft/Messages/Play/Serverbound/ServerboundPlayerInputPacket.hpp"
+#if PROTOCOL_VERSION > 768 /* > 1.21.3 */
+#include "protocolCraft/Messages/Play/Serverbound/ServerboundPlayerLoadedPacket.hpp"
+#endif
 #if PROTOCOL_VERSION > 754 /* > 1.16.5 */
 #include "protocolCraft/Messages/Play/Serverbound/ServerboundPongPacket.hpp"
 #endif
@@ -144,6 +154,9 @@
 #endif
 #include "protocolCraft/Messages/Play/Serverbound/ServerboundResourcePackPacket.hpp"
 #include "protocolCraft/Messages/Play/Serverbound/ServerboundSeenAdvancementsPacket.hpp"
+#if PROTOCOL_VERSION > 767 /* > 1.21.1 */
+#include "protocolCraft/Messages/Play/Serverbound/ServerboundSelectBundleItemPacket.hpp"
+#endif
 #if PROTOCOL_VERSION > 340 /* > 1.12.2 */
 #include "protocolCraft/Messages/Play/Serverbound/ServerboundSelectTradePacket.hpp"
 #include "protocolCraft/Messages/Play/Serverbound/ServerboundSetBeaconPacket.hpp"
@@ -218,6 +231,9 @@ namespace ProtocolCraft
 #if PROTOCOL_VERSION > 340 /* > 1.12.2 */
         ServerboundBlockEntityTagQueryPacket,
 #endif
+#if PROTOCOL_VERSION > 767 /* > 1.21.1 */
+        ServerboundSelectBundleItemPacket,
+#endif
 #if PROTOCOL_VERSION < 393 /* < 1.13 */
         ServerboundCommandSuggestionPacket,
 #endif
@@ -244,6 +260,9 @@ namespace ProtocolCraft
         ServerboundChunkBatchReceivedPacket,
 #endif
         ServerboundClientCommandPacket,
+#if PROTOCOL_VERSION > 767 /* > 1.21.1 */
+        ServerboundClientTickEndPacket,
+#endif
         ServerboundClientInformationPacket,
 #if PROTOCOL_VERSION > 340 /* > 1.12.2 */
         ServerboundCommandSuggestionPacket,
@@ -298,7 +317,11 @@ namespace ProtocolCraft
 #endif
         ServerboundMoveVehiclePacket,
         ServerboundPaddleBoatPacket,
-#if PROTOCOL_VERSION > 340 /* > 1.12.2 */
+#if PROTOCOL_VERSION > 768 /* > 1.21.3 */
+        ServerboundPickItemFromBlockPacket,
+        ServerboundPickItemFromEntityPacket,
+#endif
+#if PROTOCOL_VERSION > 340 /* > 1.12.2 */ && PROTOCOL_VERSION < 769 /* < 1.21.4 */
         ServerboundPickItemPacket,
 #endif
 #if PROTOCOL_VERSION > 763 /* > 1.20.1 */
@@ -309,6 +332,9 @@ namespace ProtocolCraft
         ServerboundPlayerActionPacket,
         ServerboundPlayerCommandPacket,
         ServerboundPlayerInputPacket,
+#if PROTOCOL_VERSION > 768 /* > 1.21.3 */
+        ServerboundPlayerLoadedPacket,
+#endif
 #if PROTOCOL_VERSION > 754 /* > 1.16.5 */
         ServerboundPongPacket,
 #endif
