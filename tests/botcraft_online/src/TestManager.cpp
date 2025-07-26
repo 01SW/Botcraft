@@ -1,5 +1,6 @@
-#include "TestManager.hpp"
 #include "MinecraftServer.hpp"
+#include "TestManager.hpp"
+#include "Utils.hpp"
 
 #include <catch2/catch_test_case_info.hpp>
 
@@ -9,18 +10,19 @@
 #include <botcraft/Game/Entities/EntityManager.hpp>
 #include <botcraft/Game/Entities/LocalPlayer.hpp>
 #include <botcraft/Utilities/Logger.hpp>
+#include <botcraft/Version.hpp>
 
 #include <fstream>
 #include <sstream>
 #include <regex>
 
-std::string ReplaceCharacters(const std::string& in, const std::vector<std::pair<char, std::string>>& replacements = { {'"', "\\\""}, {'\n', "\\n"} });
 
 TestManager::TestManager()
 {
     current_offset = {spacing_x, 2, 2 * spacing_z };
     current_test_index = 0;
     bot_index = 0;
+    physics_recap_path = std::filesystem::path("test_server_files") / "runtime" / "physics_trajectories" / (game_version + ".md");
 }
 
 TestManager::~TestManager()
@@ -212,10 +214,17 @@ void TestManager::CreateBook(const Botcraft::Position& pos, const std::vector<st
                 << "pages:[";
     for (size_t i = 0; i < pages.size(); ++i)
     {
+#if PROTOCOL_VERSION < 770 /* < 1.21.5 */
         command
             << "'{"
             << "\"text\"" << ":" << "\"" << ReplaceCharacters(pages[i], { {'"', "\\\\\""}, { '\'', "\\'" }, {'\n', "\\\\n"} }) << "\""
             << "}'" << ((i < pages.size() - 1) ? "," : "");
+#else
+        command
+            << "{"
+            << "\"text\"" << ":" << "\"" << ReplaceCharacters(pages[i], { {'"', "\\\""}, {'\\', "\\\\\\\\"}, {'\n', "\\n"}}) << "\""
+            << "}" << ((i < pages.size() - 1) ? "," : "");
+#endif
     }
     command << "]" // pages
         << "}"; // written_book_component
@@ -224,9 +233,15 @@ void TestManager::CreateBook(const Botcraft::Position& pos, const std::vector<st
         command << ",\"lore\":[";
         for (size_t i = 0; i < description.size(); ++i)
         {
+#if PROTOCOL_VERSION < 770 /* < 1.21.5 */
             command
                 << "'{\"text\":\"" << ReplaceCharacters(description[i], { {'"', "\\\\\""}, { '\'', "\\'" }, {'\n', "\\\\n"} }) << "\""
                 << "}'" << ((i < description.size() - 1) ? "," : "");
+#else
+            command
+                << "{\"text\":\"" << ReplaceCharacters(description[i], { {'"', "\\\""}, {'\\', "\\\\\\\\"}, {'\n', "\\n"} }) << "\""
+                << "}" << ((i < description.size() - 1) ? "," : "");
+#endif
         }
         command << "]"; // lore
     }
@@ -264,6 +279,11 @@ void TestManager::Teleport(const std::string& name, const Botcraft::Vector3<doub
         << pitch;
     MinecraftServer::GetInstance().SendLine(command.str());
     MinecraftServer::GetInstance().WaitLine(".*?Teleported " + name + " to.*", 5000);
+}
+
+const std::filesystem::path& TestManager::GetPhysicsRecapPath() const
+{
+    return physics_recap_path;
 }
 
 Botcraft::Position TestManager::GetStructureSize(const std::string& filename) const
@@ -331,6 +351,9 @@ void TestManager::CreateTPSign(const Botcraft::Position& src, const Botcraft::Ve
     case TestSucess::ExpectedFailure:
         text_color = "gold";
         break;
+    case TestSucess::Skipped:
+        text_color = "gray";
+        break;
     }
 #if PROTOCOL_VERSION < 763 /* < 1.20 */
     std::map<std::string, std::string> lines;
@@ -349,9 +372,15 @@ void TestManager::CreateTPSign(const Botcraft::Position& src, const Botcraft::Ve
             line
                 << "\"underlined\"" << ":" << "false" << ","
                 << "\"color\"" << ":" << "\"" << "black" << "\"" << ","
+#if PROTOCOL_VERSION < 770 /* < 1.21.5 */
                 << "\"clickEvent\"" << ":" << "{"
                     << "\"action\"" << ":" << "\"run_command\"" << ","
                     << "\"value\"" << ":" << "\""
+#else
+                << "\"click_event\"" << ":" << "{"
+                    << "\"action\"" << ":" << "\"run_command\"" << ","
+                    << "\"command\"" << ":" << "\""
+#endif
 #if PROTOCOL_VERSION > 340 /* > 1.12.2 */
                     << "teleport @s" << " " << offset_target.x << " " << offset_target.y << " " << offset_target.z
                     << " " << "facing" << " " << dst.x << " " << dst.y << " " << dst.z
@@ -387,6 +416,7 @@ void TestManager::CreateTPSign(const Botcraft::Position& src, const Botcraft::Ve
     text_content << "{\"messages\":[";
     for (size_t i = 0; i < 4ULL; ++i)
     {
+#if PROTOCOL_VERSION < 770 /* < 1.21.5 */
         if (i < lines.size())
         {
             text_content << "\"" << ReplaceCharacters(lines[i]) << "\"";
@@ -395,6 +425,17 @@ void TestManager::CreateTPSign(const Botcraft::Position& src, const Botcraft::Ve
         {
             text_content << "\"" << ReplaceCharacters("{\"text\":\"\"}") << "\"";
         }
+#else
+        // Commands are a bit less verbose in 1.21.5+, no need to quote the lines
+        if (i < lines.size())
+        {
+            text_content << ReplaceCharacters(lines[i], { {'\n', "\\n"} });
+        }
+        else
+        {
+            text_content << "\"\"";
+        }
+#endif
         if (i != 3ULL)
         {
             text_content << ",";
@@ -442,9 +483,10 @@ void TestManager::LoadStructure(const std::string& filename, const Botcraft::Pos
     {
         no_space_filename = no_space_filename.substr(0, split_index);
     }
-    const std::string& loaded = std::filesystem::exists(MinecraftServer::GetInstance().GetStructurePath() / (no_space_filename + ".nbt")) ?
-        no_space_filename :
-        "_default";
+    const std::string& loaded =
+        std::filesystem::exists(MinecraftServer::GetInstance().GetStructurePath() / (no_space_filename + ".nbt")) ?
+            no_space_filename :
+            "_default";
 
     SetBlock(
         "structure_block",
@@ -460,7 +502,8 @@ void TestManager::LoadStructure(const std::string& filename, const Botcraft::Pos
             {"posX", std::to_string(load_offset.x)},
             {"posY", std::to_string(load_offset.y)},
             {"posZ", std::to_string(load_offset.z)},
-            {"showboundingbox", "1"}
+            {"showboundingbox", "1"},
+            {"ignoreEntities", "0"}
         }
     );
     SetBlock("redstone_block", pos + Botcraft::Position(0, 1, 0));
@@ -552,6 +595,15 @@ void TestManager::testRunStarting(Catch::TestRunInfo const& test_run_info)
 {
     // Make sure the server is running and ready before the first test run
     MinecraftServer::GetInstance().Initialize();
+    // If there is some pre-existing physics trajectories, remove them
+    const std::filesystem::path botcraft_trajectories = std::filesystem::path("test_server_files") / "runtime" / "physics_trajectories" / "botcraft" / game_version;
+    if (std::filesystem::exists(botcraft_trajectories))
+    {
+        std::filesystem::remove_all(botcraft_trajectories);
+    }
+    std::filesystem::create_directories(botcraft_trajectories);
+    std::ofstream recap_file(physics_recap_path, std::ios::out);
+    recap_file << "<details>\n<summary>Test results</summary>\n";
     // Retrieve header size
     header_size = GetStructureSize("_header_running");
     chunk_loader = GetBot(chunk_loader_name, Botcraft::GameType::Spectator);
@@ -599,20 +651,46 @@ void TestManager::assertionEnded(Catch::AssertionStats const& assertion_stats)
 
 void TestManager::testCasePartialEnded(Catch::TestCaseStats const& test_case_stats, uint64_t part_number)
 {
+    const bool skipped = test_case_stats.totals.testCases.skipped > 0;
     const bool passed = test_case_stats.totals.assertions.allPassed();
     // Replace header with proper test result
-    LoadStructure(passed ? "_header_success" : (test_case_stats.testInfo->okToFail() ? "_header_expected_fail" : "_header_fail"), current_header_position);
+    LoadStructure(
+        skipped ?
+            "_header_skipped" :
+            passed ?
+                "_header_success" :
+                test_case_stats.testInfo->okToFail() ?
+                    "_header_expected_fail" :
+                    "_header_fail",
+        current_header_position
+    );
     // Create TP sign for the partial that just ended
     CreateTPSign(
         Botcraft::Position(-2 * (current_test_index + 1), 2, -2 * part_number - 5),
         Botcraft::Vector3(current_offset.x, 2, current_offset.z - 1),
-        section_stack, "north", passed ? TestSucess::Success : (test_case_stats.testInfo->okToFail() ? TestSucess::ExpectedFailure : TestSucess::Failure)
+        section_stack,
+        "north",
+        skipped ?
+            TestSucess::Skipped :
+            passed ?
+                TestSucess::Success :
+                test_case_stats.testInfo->okToFail() ?
+                    TestSucess::ExpectedFailure :
+                    TestSucess::Failure
     );
     // Create back to spawn sign for the section that just ended
     CreateTPSign(
         Botcraft::Position(current_offset.x, 2, current_offset.z - 1),
         Botcraft::Vector3(-2 * (current_test_index + 1), 2, -2 * static_cast<int>(part_number) - 5),
-        section_stack, "south", passed ? TestSucess::Success : (test_case_stats.testInfo->okToFail() ? TestSucess::ExpectedFailure : TestSucess::Failure)
+        section_stack,
+        "south",
+        skipped ?
+            TestSucess::Skipped :
+            passed ?
+                TestSucess::Success :
+                test_case_stats.testInfo->okToFail() ?
+                    TestSucess::ExpectedFailure :
+                    TestSucess::Failure
     );
     if (!passed)
     {
@@ -621,7 +699,7 @@ void TestManager::testCasePartialEnded(Catch::TestCaseStats const& test_case_sta
             current_test_case_failures,
             "north",
             test_case_stats.testInfo->name + "#" + std::to_string(part_number),
-            "Botcraft Test Framework",
+            "Test Framework - Botcraft_" + std::to_string(bot_index - 1),
             section_stack
         );
     }
@@ -638,21 +716,45 @@ void TestManager::testCasePartialEnded(Catch::TestCaseStats const& test_case_sta
 
 void TestManager::testCaseEnded(Catch::TestCaseStats const& test_case_stats)
 {
+    const bool skipped = test_case_stats.totals.testCases.skipped > 0;
     const bool passed = test_case_stats.totals.assertions.allPassed();
-    LoadStructure(passed ? "_header_success" : (test_case_stats.testInfo->okToFail() ? "_header_expected_fail" : "_header_fail"), Botcraft::Position(current_offset.x, 0, spacing_z - header_size.z));
+    LoadStructure(
+        skipped ?
+            "_header_skipped" :
+            passed ?
+                "_header_success" :
+                test_case_stats.testInfo->okToFail() ?
+                    "_header_expected_fail" :
+                    "_header_fail",
+        Botcraft::Position(current_offset.x, 0, spacing_z - header_size.z)
+    );
     // Create Sign to TP to current test
     CreateTPSign(
         Botcraft::Position(-2 * (current_test_index + 1), 2, -2),
         Botcraft::Vector3(current_offset.x, 2, spacing_z - 1),
         { std::filesystem::path(test_case_stats.testInfo->lineInfo.file).stem().string(), test_case_stats.testInfo->name },
-        "north", passed ? TestSucess::Success : (test_case_stats.testInfo->okToFail() ? TestSucess::ExpectedFailure : TestSucess::Failure)
+        "north",
+        skipped ?
+            TestSucess::Skipped :
+            passed ?
+                TestSucess::Success :
+                test_case_stats.testInfo->okToFail() ?
+                    TestSucess::ExpectedFailure :
+                    TestSucess::Failure
     );
-    // Create sign to TP to TP back to spawn
+    // Create sign to TP back to spawn
     CreateTPSign(
         Botcraft::Position(current_offset.x, 2, spacing_z - 1),
         Botcraft::Vector3(-2 * (current_test_index + 1), 2, -2),
         { std::filesystem::path(test_case_stats.testInfo->lineInfo.file).stem().string(), test_case_stats.testInfo->name },
-        "south", passed ? TestSucess::Success : (test_case_stats.testInfo->okToFail() ? TestSucess::ExpectedFailure : TestSucess::Failure)
+        "south",
+        skipped ?
+            TestSucess::Skipped :
+            passed ?
+                TestSucess::Success :
+                test_case_stats.testInfo->okToFail() ?
+                    TestSucess::ExpectedFailure :
+                    TestSucess::Failure
     );
     current_test_index += 1;
     current_offset.x += std::max(current_test_size.x, header_size.x) + spacing_x;
@@ -664,6 +766,8 @@ void TestManager::testRunEnded(Catch::TestRunStats const& test_run_info)
     {
         chunk_loader->Disconnect();
     }
+    std::ofstream recap_file(physics_recap_path, std::ios::app);
+    recap_file << "\n</details>\n";
 }
 
 
@@ -709,29 +813,3 @@ void TestManagerListener::testRunEnded(Catch::TestRunStats const& test_run_info)
     TestManager::GetInstance().testRunEnded(test_run_info);
 }
 CATCH_REGISTER_LISTENER(TestManagerListener)
-
-std::string ReplaceCharacters(const std::string& in, const std::vector<std::pair<char, std::string>>& replacements)
-{
-    std::string output;
-    output.reserve(in.size());
-
-    for (size_t i = 0; i < in.size(); ++i)
-    {
-        bool found = false;
-        for (size_t j = 0; j < replacements.size(); ++j)
-        {
-            if (replacements[j].first == in[i])
-            {
-                output += replacements[j].second;
-                found = true;
-                break;
-            }
-        }
-        if (!found)
-        {
-            output += in[i];
-        }
-    }
-
-    return output;
-}

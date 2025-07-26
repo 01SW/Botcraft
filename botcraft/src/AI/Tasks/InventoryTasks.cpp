@@ -22,15 +22,15 @@ namespace Botcraft
     {
         std::shared_ptr<InventoryManager> inventory_manager = client.GetInventoryManager();
 
-        std::shared_ptr<ServerboundContainerClickPacket> click_window_msg = std::make_shared<ServerboundContainerClickPacket>();
+        std::shared_ptr<ServerboundContainerClickPacket> click_window_packet = std::make_shared<ServerboundContainerClickPacket>();
 
-        click_window_msg->SetContainerId(static_cast<unsigned char>(container_id));
-        click_window_msg->SetSlotNum(slot_id);
-        click_window_msg->SetButtonNum(button_num);
-        click_window_msg->SetClickType(click_type);
+        click_window_packet->SetContainerId(static_cast<unsigned char>(container_id));
+        click_window_packet->SetSlotNum(slot_id);
+        click_window_packet->SetButtonNum(button_num);
+        click_window_packet->SetClickType(click_type);
 
         // ItemStack/CarriedItem, StateId and ChangedSlots will be set in SendInventoryTransaction
-        int transaction_id = client.SendInventoryTransaction(click_window_msg);
+        int transaction_id = client.SendInventoryTransaction(click_window_packet);
 
         // Wait for the click confirmation (versions < 1.17)
 #if PROTOCOL_VERSION < 755 /* < 1.17 */
@@ -407,7 +407,7 @@ namespace Botcraft
     }
 
 
-    Status PlaceBlockImpl(BehaviourClient& client, const std::string& item_name, const Position& pos, std::optional<PlayerDiggingFace> face, const bool wait_confirmation, const bool allow_midair_placing)
+    Status PlaceBlockImpl(BehaviourClient& client, const std::string& item_name, const Position& pos, std::optional<PlayerDiggingFace> face, const bool wait_confirmation, const bool allow_midair_placing, const bool allow_pathfinding)
     {
         std::shared_ptr<World> world = client.GetWorld();
         std::shared_ptr<InventoryManager> inventory_manager = client.GetInventoryManager();
@@ -420,7 +420,7 @@ namespace Botcraft
 
         if (hand_pos.SqrDist(Vector3<double>(0.5, 0.5, 0.5) + pos) > 16.0f)
         {
-            if (GoTo(client, pos, 4, 0, 1) == Status::Failure)
+            if (!allow_pathfinding || GoTo(client, pos, 4, 0, 1) == Status::Failure)
             {
                 return Status::Failure;
             }
@@ -432,7 +432,7 @@ namespace Botcraft
             Position(0, 1, 0), Position(0, -1, 0),
             Position(0, 0, 1), Position(0, 0, -1),
             Position(1, 0, 0), Position(-1, 0, 0)
-            });
+        });
 
         bool midair_placing = true;
         // If no face specified
@@ -507,55 +507,55 @@ namespace Botcraft
         // If cheating is not allowed, adjust the placing position to the block containing the face we're placing against
         const Position placing_pos = (allow_midair_placing && midair_placing) ? pos : (pos + neighbour_offsets[static_cast<int>(face.value())]);
 
-        std::shared_ptr<ServerboundUseItemOnPacket> place_block_msg = std::make_shared<ServerboundUseItemOnPacket>();
-        place_block_msg->SetLocation(placing_pos.ToNetworkPosition());
-        place_block_msg->SetDirection(static_cast<int>(face.value()));
+        std::shared_ptr<ServerboundUseItemOnPacket> place_block_packet = std::make_shared<ServerboundUseItemOnPacket>();
+        place_block_packet->SetLocation(placing_pos.ToNetworkPosition());
+        place_block_packet->SetDirection(static_cast<int>(face.value()));
         switch (face.value())
         {
         case PlayerDiggingFace::Down:
-            place_block_msg->SetCursorPositionX(0.5f);
-            place_block_msg->SetCursorPositionY(0.0f);
-            place_block_msg->SetCursorPositionZ(0.5f);
+            place_block_packet->SetCursorPositionX(0.5f);
+            place_block_packet->SetCursorPositionY(0.0f);
+            place_block_packet->SetCursorPositionZ(0.5f);
             break;
         case PlayerDiggingFace::Up:
-            place_block_msg->SetCursorPositionX(0.5f);
-            place_block_msg->SetCursorPositionY(1.0f);
-            place_block_msg->SetCursorPositionZ(0.5f);
+            place_block_packet->SetCursorPositionX(0.5f);
+            place_block_packet->SetCursorPositionY(1.0f);
+            place_block_packet->SetCursorPositionZ(0.5f);
             break;
         case PlayerDiggingFace::North:
-            place_block_msg->SetCursorPositionX(0.5f);
-            place_block_msg->SetCursorPositionY(0.5f);
-            place_block_msg->SetCursorPositionZ(0.0f);
+            place_block_packet->SetCursorPositionX(0.5f);
+            place_block_packet->SetCursorPositionY(0.5f);
+            place_block_packet->SetCursorPositionZ(0.0f);
             break;
         case PlayerDiggingFace::South:
-            place_block_msg->SetCursorPositionX(0.5f);
-            place_block_msg->SetCursorPositionY(0.5f);
-            place_block_msg->SetCursorPositionZ(1.0f);
+            place_block_packet->SetCursorPositionX(0.5f);
+            place_block_packet->SetCursorPositionY(0.5f);
+            place_block_packet->SetCursorPositionZ(1.0f);
             break;
         case PlayerDiggingFace::East:
-            place_block_msg->SetCursorPositionX(1.0f);
-            place_block_msg->SetCursorPositionY(0.5f);
-            place_block_msg->SetCursorPositionZ(0.5f);
+            place_block_packet->SetCursorPositionX(1.0f);
+            place_block_packet->SetCursorPositionY(0.5f);
+            place_block_packet->SetCursorPositionZ(0.5f);
             break;
         case PlayerDiggingFace::West:
-            place_block_msg->SetCursorPositionX(0.0f);
-            place_block_msg->SetCursorPositionY(0.5f);
-            place_block_msg->SetCursorPositionZ(0.5f);
+            place_block_packet->SetCursorPositionX(0.0f);
+            place_block_packet->SetCursorPositionY(0.5f);
+            place_block_packet->SetCursorPositionZ(0.5f);
             break;
         default:
             break;
         }
 #if PROTOCOL_VERSION > 452 /* > 1.13.2 */
-        place_block_msg->SetInside(false);
+        place_block_packet->SetInside(false);
 #endif
-        place_block_msg->SetHand(static_cast<int>(Hand::Right));
+        place_block_packet->SetHand(static_cast<int>(Hand::Right));
 #if PROTOCOL_VERSION > 758 /* > 1.18.2 */
-        place_block_msg->SetSequence(world->GetNextWorldInteractionSequenceId());
+        place_block_packet->SetSequence(world->GetNextWorldInteractionSequenceId());
 #endif
 
 
         // Place the block
-        network_manager->Send(place_block_msg);
+        network_manager->Send(place_block_packet);
 
         std::shared_ptr<ServerboundSwingPacket> swing = std::make_shared<ServerboundSwingPacket>();
         swing->SetHand(static_cast<int>(Hand::Right));
@@ -567,7 +567,7 @@ namespace Botcraft
         }
 
         bool is_block_ok = false;
-        bool is_slot_ok = false;
+        bool is_slot_ok = true;
         auto start = std::chrono::steady_clock::now();
         const double ms_per_tick = client.GetPhysicsManager()->GetMsPerTick();
         while (!is_block_ok || !is_slot_ok)
@@ -606,14 +606,15 @@ namespace Botcraft
         return Status::Success;
     }
 
-    Status PlaceBlock(BehaviourClient& client, const std::string& item_name, const Position& pos, std::optional<PlayerDiggingFace> face, const bool wait_confirmation, const bool allow_midair_placing)
+    Status PlaceBlock(BehaviourClient& client, const std::string& item_name, const Position& pos, std::optional<PlayerDiggingFace> face, const bool wait_confirmation, const bool allow_midair_placing, const bool allow_pathfinding)
     {
         constexpr std::array variable_names = {
                "PlaceBlock.item_name",
                "PlaceBlock.pos",
                "PlaceBlock.face",
                "PlaceBlock.wait_confirmation",
-               "PlaceBlock.allow_midair_placing"
+               "PlaceBlock.allow_midair_placing",
+               "PlaceBlock.allow_pathfinding",
         };
 
         Blackboard& blackboard = client.GetBlackboard();
@@ -623,8 +624,9 @@ namespace Botcraft
         blackboard.Set<std::optional<PlayerDiggingFace>>(variable_names[2], face);
         blackboard.Set<bool>(variable_names[3], wait_confirmation);
         blackboard.Set<bool>(variable_names[4], allow_midair_placing);
+        blackboard.Set<bool>(variable_names[5], allow_pathfinding);
 
-        return PlaceBlockImpl(client, item_name, pos, face, wait_confirmation, allow_midair_placing);
+        return PlaceBlockImpl(client, item_name, pos, face, wait_confirmation, allow_midair_placing, allow_pathfinding);
     }
 
     Status PlaceBlockBlackboard(BehaviourClient& client)
@@ -634,7 +636,8 @@ namespace Botcraft
                "PlaceBlock.pos",
                "PlaceBlock.face",
                "PlaceBlock.wait_confirmation",
-               "PlaceBlock.allow_midair_placing"
+               "PlaceBlock.allow_midair_placing",
+               "PlaceBlock.allow_pathfinding",
         };
 
         Blackboard& blackboard = client.GetBlackboard();
@@ -647,9 +650,10 @@ namespace Botcraft
         const std::optional<PlayerDiggingFace> face = blackboard.Get<std::optional<PlayerDiggingFace>>(variable_names[2], PlayerDiggingFace::Up);
         const bool wait_confirmation = blackboard.Get<bool>(variable_names[3], false);
         const bool allow_midair_placing = blackboard.Get<bool>(variable_names[4], false);
+        const bool allow_pathfinding = blackboard.Get<bool>(variable_names[5], true);
 
 
-        return PlaceBlockImpl(client, item_name, pos, face, wait_confirmation, allow_midair_placing);
+        return PlaceBlockImpl(client, item_name, pos, face, wait_confirmation, allow_midair_placing, allow_pathfinding);
     }
 
 
@@ -664,12 +668,12 @@ namespace Botcraft
         std::shared_ptr<NetworkManager> network_manager = client.GetNetworkManager();
 
         const char current_stack_size = inventory_manager->GetOffHand().GetItemCount();
-        std::shared_ptr<ServerboundUseItemPacket> use_item_msg = std::make_shared<ServerboundUseItemPacket>();
-        use_item_msg->SetHand(static_cast<int>(Hand::Left));
+        std::shared_ptr<ServerboundUseItemPacket> use_item_packet = std::make_shared<ServerboundUseItemPacket>();
+        use_item_packet->SetHand(static_cast<int>(Hand::Left));
 #if PROTOCOL_VERSION > 758 /* > 1.18.2 */
-        use_item_msg->SetSequence(client.GetWorld()->GetNextWorldInteractionSequenceId());
+        use_item_packet->SetSequence(client.GetWorld()->GetNextWorldInteractionSequenceId());
 #endif
-        network_manager->Send(use_item_msg);
+        network_manager->Send(use_item_packet);
 
         if (!wait_confirmation)
         {
@@ -785,14 +789,14 @@ namespace Botcraft
         std::shared_ptr<NetworkManager> network_manager = client.GetNetworkManager();
         std::shared_ptr<InventoryManager> inventory_manager = client.GetInventoryManager();
 
-        std::shared_ptr<ServerboundContainerClosePacket> close_container_msg = std::make_shared<ServerboundContainerClosePacket>();
+        std::shared_ptr<ServerboundContainerClosePacket> close_container_packet = std::make_shared<ServerboundContainerClosePacket>();
         short true_container_id = container_id;
         if (true_container_id < 0)
         {
             true_container_id = inventory_manager->GetFirstOpenedWindowId();
         }
-        close_container_msg->SetContainerId(static_cast<unsigned char>(true_container_id));
-        network_manager->Send(close_container_msg);
+        close_container_packet->SetContainerId(static_cast<unsigned char>(true_container_id));
+        network_manager->Send(close_container_packet);
 
         // There is no confirmation from the server, so we
         // can simply close the window here
@@ -940,10 +944,10 @@ namespace Botcraft
         std::shared_ptr<NetworkManager> network_manager = client.GetNetworkManager();
 
         // Select the trade in the list
-        std::shared_ptr<ServerboundSelectTradePacket> select_trade_msg = std::make_shared<ServerboundSelectTradePacket>();
-        select_trade_msg->SetItem(trade_index);
+        std::shared_ptr<ServerboundSelectTradePacket> select_trade_packet = std::make_shared<ServerboundSelectTradePacket>();
+        select_trade_packet->SetItem(trade_index);
 
-        network_manager->Send(select_trade_msg);
+        network_manager->Send(select_trade_packet);
 
         start = std::chrono::steady_clock::now();
         // Wait until the output/input is set with the correct item

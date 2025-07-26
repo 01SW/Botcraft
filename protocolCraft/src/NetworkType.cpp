@@ -59,6 +59,9 @@
 #if PROTOCOL_VERSION > 766 /* > 1.20.6 */
 #include "protocolCraft/Types/ServerLinksUnstrustedEntry.hpp"
 #endif
+#if PROTOCOL_VERSION > 769 /* > 1.21.4 */
+#include "protocolCraft/Types/TestInstanceBlockEntityData.hpp"
+#endif
 
 // Chat
 #if PROTOCOL_VERSION > 759 /* > 1.19 */ && PROTOCOL_VERSION < 761 /* < 1.19.3 */
@@ -95,6 +98,9 @@
 #endif
 
 // Items
+#if PROTOCOL_VERSION > 769 /* > 1.21.4 */
+#include "protocolCraft/Types/Item/HashedSlot.hpp"
+#endif
 #include "protocolCraft/Types/Item/Slot.hpp"
 #if PROTOCOL_VERSION > 765 /* > 1.20.4 */
 #include "protocolCraft/Types/Item/ItemCost.hpp"
@@ -160,7 +166,7 @@ namespace ProtocolCraft
 #if PROTOCOL_VERSION > 758 /* > 1.18.2 */
     DEFINE_NETWORK_TYPE(GlobalPos);
 #endif
-    DEFINE_SERIALIZE(Identifier);
+    DEFINE_NETWORK_TYPE(Identifier);
 #if PROTOCOL_VERSION > 765 /* > 1.20.4 */
     DEFINE_NETWORK_TYPE(KnownPack);
 #endif
@@ -186,6 +192,9 @@ namespace ProtocolCraft
 #endif
 #if PROTOCOL_VERSION > 766 /* > 1.20.6 */
     DEFINE_NETWORK_TYPE(ServerLinksUnstrustedEntry);
+#endif
+#if PROTOCOL_VERSION > 769 /* > 1.21.4 */
+    DEFINE_NETWORK_TYPE(TestInstanceBlockEntityData);
 #endif
 
     // Chat
@@ -223,6 +232,10 @@ namespace ProtocolCraft
 #endif
 
     // Items
+#if PROTOCOL_VERSION > 769 /* > 1.21.4 */
+    DEFINE_NETWORK_TYPE(HashedSlot);
+    DEFINE_NETWORK_TYPE(HashedSlotActualItem);
+#endif
     DEFINE_NETWORK_TYPE(Slot);
 #if PROTOCOL_VERSION > 765 /* > 1.20.4 */
     DEFINE_NETWORK_TYPE(ItemCost);

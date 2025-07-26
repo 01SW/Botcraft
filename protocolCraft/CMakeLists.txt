@@ -1,297 +1,308 @@
 project(protocolCraft)
 
 set(protocolCraft_PUBLIC_HDR
-    include/protocolCraft/AllClientboundMessages.hpp
-    include/protocolCraft/AllMessages.hpp
-    include/protocolCraft/AllServerboundMessages.hpp
-    include/protocolCraft/BaseMessage.hpp
+    include/protocolCraft/AllClientboundPackets.hpp
+    include/protocolCraft/AllPackets.hpp
+    include/protocolCraft/AllServerboundPackets.hpp
+    include/protocolCraft/BasePacket.hpp
     include/protocolCraft/BinaryReadWrite.hpp
     include/protocolCraft/enums.hpp
     include/protocolCraft/GenericHandler.hpp
     include/protocolCraft/Handler.hpp
-    include/protocolCraft/Message.hpp
-    include/protocolCraft/MessageFactory.hpp
     include/protocolCraft/NetworkType.hpp
+    include/protocolCraft/Packet.hpp
+    include/protocolCraft/PacketFactory.hpp
 
-    include/protocolCraft/Messages/Handshaking/Serverbound/ServerboundClientIntentionPacket.hpp
-
-
-    include/protocolCraft/Messages/Login/Clientbound/ClientboundCookieRequestPacket.hpp
-    include/protocolCraft/Messages/Login/Clientbound/ClientboundCustomQueryPacket.hpp
-    include/protocolCraft/Messages/Login/Clientbound/ClientboundGameProfilePacket.hpp
-    include/protocolCraft/Messages/Login/Clientbound/ClientboundHelloPacket.hpp
-    include/protocolCraft/Messages/Login/Clientbound/ClientboundLoginCompressionPacket.hpp
-    include/protocolCraft/Messages/Login/Clientbound/ClientboundLoginDisconnectPacket.hpp
-    include/protocolCraft/Messages/Login/Clientbound/ClientboundLoginFinishedPacket.hpp
-
-    include/protocolCraft/Messages/Login/Serverbound/ServerboundCookieResponsePacket.hpp
-    include/protocolCraft/Messages/Login/Serverbound/ServerboundCustomQueryAnswerPacket.hpp
-    include/protocolCraft/Messages/Login/Serverbound/ServerboundCustomQueryPacket.hpp
-    include/protocolCraft/Messages/Login/Serverbound/ServerboundHelloPacket.hpp
-    include/protocolCraft/Messages/Login/Serverbound/ServerboundKeyPacket.hpp
-    include/protocolCraft/Messages/Login/Serverbound/ServerboundLoginAcknowledgedPacket.hpp
+    include/protocolCraft/Packets/Handshake/Serverbound/ServerboundClientIntentionPacket.hpp
 
 
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundAddEntityPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundAddExperienceOrbPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundAddGlobalEntityPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundAddMobPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundAddPaintingPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundAddPlayerPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundAddVibrationSignalPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundAnimatePacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundAwardStatsPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundBlockBreakAckPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundBlockChangedAckPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundBlockDestructionPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundBlockEntityDataPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundBlockEventPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundBlockUpdatePacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundBossEventPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundBundlePacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundChangeDifficultyPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundChatPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundChatPreviewPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundChunkBatchFinishedPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundChunkBatchStartPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundChunksBiomesPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundClearTitlesPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundCommandsPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundCommandSuggestionsPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundContainerAckPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundContainerClosePacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundContainerSetContentPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundContainerSetDataPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundContainerSetSlotPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundCookieRequestPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundCooldownPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundCustomChatCompletionsPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundCustomPayloadPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundCustomReportDetailsPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundCustomSoundPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundDamageEventPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundDebugSamplePacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundDeleteChatPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundDisconnectPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundDisguisedChatPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundEntityEventPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundEntityPositionSyncPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundExplodePacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundForgetLevelChunkPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundGameEventPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundHorseScreenOpenPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundHurtAnimationPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundInitializeBorderPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundKeepAlivePacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundLevelChunkPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundLevelChunkWithLightPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundLevelEventPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundLevelParticlesPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundLightUpdatePacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundLoginPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundMapItemDataPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundMerchantOffersPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundMoveEntityPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundMoveEntityPacketPos.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundMoveEntityPacketPosRot.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundMoveEntityPacketRot.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundMoveMinecartPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundMoveVehiclePacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundOpenBookPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundOpenScreenPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundOpenSignEditorPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundPingPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundPlaceGhostRecipePacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundPlayerAbilitiesPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundPlayerChatHeaderPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundPlayerChatPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundPlayerCombatEndPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundPlayerCombatEnterPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundPlayerCombatKillPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundPlayerCombatPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundPlayerInfoPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundPlayerInfoRemovePacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundPlayerInfoUpdatePacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundPlayerLookAtPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundPlayerPositionPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundPlayerRotationPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundPongResponsePacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundProjectilePowerPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundRecipeBookAddPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundRecipeBookRemovePacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundRecipeBookSettingsPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundRecipePacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundRemoveEntitiesPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundRemoveEntityPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundRemoveMobEffectPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundResourcePackPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundResetScorePacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundResourcePackPopPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundResourcePackPushPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundRespawnPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundRotateHeadPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSectionBlocksUpdatePacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSelectAdvancementsTabPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundServerDataPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundServerLinksPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSetActionBarTextPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSetBorderCenterPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSetBorderLerpSizePacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSetBorderPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSetBorderSizePacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSetBorderWarningDelayPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSetBorderWarningDistancePacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSetCameraPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSetCarriedItemPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSetChunkCacheCenterPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSetChunkCacheRadiusPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSetCursorItemPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSetDefaultSpawnPositionPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSetDisplayChatPreviewPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSetDisplayObjectivePacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSetEntityDataPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSetEntityLinkPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSetEntityMotionPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSetEquipmentPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSetExperiencePacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSetHealthPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSetHeldSlotPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSetObjectivePacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSetPassengersPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSetPlayerInventoryPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSetPlayerTeamPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSetScorePacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSetSimulationDistancePacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSetSubtitleTextPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSetTimePacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSetTitlesAnimationPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSetTitlesPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSetTitleTextPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSoundEntityPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSoundPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundStartConfigurationPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundStopSoundPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundStoreCookiePacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundSystemChatPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundTabListPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundTagQueryPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundTakeItemEntityPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundTeleportEntityPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundTickingStatePacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundTickingStepPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundTransferPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundUpdateAdvancementsPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundUpdateAttributesPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundUpdateEnabledFeaturesPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundUpdateMobEffectPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundUpdateRecipesPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundUpdateTagsPacket.hpp
-    include/protocolCraft/Messages/Play/Clientbound/ClientboundUseBedPacket.hpp
+    include/protocolCraft/Packets/Login/Clientbound/ClientboundCookieRequestPacket.hpp
+    include/protocolCraft/Packets/Login/Clientbound/ClientboundCustomQueryPacket.hpp
+    include/protocolCraft/Packets/Login/Clientbound/ClientboundGameProfilePacket.hpp
+    include/protocolCraft/Packets/Login/Clientbound/ClientboundHelloPacket.hpp
+    include/protocolCraft/Packets/Login/Clientbound/ClientboundLoginCompressionPacket.hpp
+    include/protocolCraft/Packets/Login/Clientbound/ClientboundLoginDisconnectPacket.hpp
+    include/protocolCraft/Packets/Login/Clientbound/ClientboundLoginFinishedPacket.hpp
 
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundAcceptTeleportationPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundBlockEntityTagQueryPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundChangeDifficultyPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundChatAckPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundChatCommandSignedPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundChatCommandPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundChatPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundChatPreviewPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundChatSessionUpdatePacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundChunkBatchReceivedPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundClientCommandPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundClientInformationPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundClientTickEndPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundCommandSuggestionPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundConfigurationAcknowledgedPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundContainerAckPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundContainerButtonClickPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundContainerClickPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundContainerClosePacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundContainerSlotStateChangedPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundCookieResponsePacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundCustomPayloadPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundDebugSampleSubscriptionPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundEditBookPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundEnchantItemPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundEntityTagQueryPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundInteractPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundJigsawGeneratePacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundKeepAlivePacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundLockDifficultyPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundMovePlayerPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundMovePlayerPacketPos.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundMovePlayerPacketPosRot.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundMovePlayerPacketRot.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundMovePlayerPacketStatusOnly.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundMoveVehiclePacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundPaddleBoatPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundPickItemFromBlockPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundPickItemFromEntityPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundPickItemPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundPingRequestPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundPlaceRecipePacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundPlayerAbilitiesPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundPlayerActionPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundPlayerCommandPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundPlayerInputPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundPlayerLoadedPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundPongPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundRecipeBookChangeSettingsPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundRecipeBookSeenRecipePacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundRecipeBookUpdatePacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundRenameItemPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundResourcePackPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundSeenAdvancementsPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundSelectBundleItemPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundSelectTradePacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundSetBeaconPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundSetCarriedItemPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundSetCommandBlockPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundSetCommandMinecartPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundSetCreativeModeSlotPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundSetJigsawBlockPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundSetStructureBlockPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundSignUpdatePacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundSwingPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundTeleportToEntityPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundUseItemOnPacket.hpp
-    include/protocolCraft/Messages/Play/Serverbound/ServerboundUseItemPacket.hpp
+    include/protocolCraft/Packets/Login/Serverbound/ServerboundCookieResponsePacket.hpp
+    include/protocolCraft/Packets/Login/Serverbound/ServerboundCustomQueryAnswerPacket.hpp
+    include/protocolCraft/Packets/Login/Serverbound/ServerboundCustomQueryPacket.hpp
+    include/protocolCraft/Packets/Login/Serverbound/ServerboundHelloPacket.hpp
+    include/protocolCraft/Packets/Login/Serverbound/ServerboundKeyPacket.hpp
+    include/protocolCraft/Packets/Login/Serverbound/ServerboundLoginAcknowledgedPacket.hpp
 
 
-    include/protocolCraft/Messages/Status/Clientbound/ClientboundPongResponsePacket.hpp
-    include/protocolCraft/Messages/Status/Clientbound/ClientboundStatusResponsePacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundAddEntityPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundAddExperienceOrbPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundAddGlobalEntityPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundAddMobPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundAddPaintingPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundAddPlayerPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundAddVibrationSignalPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundAnimatePacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundAwardStatsPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundBlockBreakAckPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundBlockChangedAckPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundBlockDestructionPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundBlockEntityDataPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundBlockEventPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundBlockUpdatePacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundBossEventPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundBundlePacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundChangeDifficultyPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundChatPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundChatPreviewPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundChunkBatchFinishedPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundChunkBatchStartPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundChunksBiomesPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundClearDialogPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundClearTitlesPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundCommandsPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundCommandSuggestionsPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundContainerAckPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundContainerClosePacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundContainerSetContentPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundContainerSetDataPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundContainerSetSlotPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundCookieRequestPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundCooldownPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundCustomChatCompletionsPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundCustomPayloadPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundCustomReportDetailsPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundCustomSoundPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundDamageEventPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundDebugSamplePacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundDeleteChatPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundDisconnectPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundDisguisedChatPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundEntityEventPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundEntityPositionSyncPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundExplodePacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundForgetLevelChunkPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundGameEventPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundHorseScreenOpenPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundHurtAnimationPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundInitializeBorderPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundKeepAlivePacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundLevelChunkPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundLevelChunkWithLightPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundLevelEventPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundLevelParticlesPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundLightUpdatePacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundLoginPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundMapItemDataPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundMerchantOffersPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundMoveEntityPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundMoveEntityPacketPos.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundMoveEntityPacketPosRot.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundMoveEntityPacketRot.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundMoveMinecartPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundMoveVehiclePacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundOpenBookPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundOpenScreenPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundOpenSignEditorPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundPingPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundPlaceGhostRecipePacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundPlayerAbilitiesPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundPlayerChatHeaderPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundPlayerChatPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundPlayerCombatEndPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundPlayerCombatEnterPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundPlayerCombatKillPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundPlayerCombatPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundPlayerInfoPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundPlayerInfoRemovePacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundPlayerInfoUpdatePacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundPlayerLookAtPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundPlayerPositionPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundPlayerRotationPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundPongResponsePacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundProjectilePowerPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundRecipeBookAddPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundRecipeBookRemovePacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundRecipeBookSettingsPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundRecipePacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundRemoveEntitiesPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundRemoveEntityPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundRemoveMobEffectPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundResourcePackPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundResetScorePacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundResourcePackPopPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundResourcePackPushPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundRespawnPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundRotateHeadPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSectionBlocksUpdatePacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSelectAdvancementsTabPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundServerDataPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundServerLinksPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSetActionBarTextPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSetBorderCenterPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSetBorderLerpSizePacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSetBorderPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSetBorderSizePacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSetBorderWarningDelayPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSetBorderWarningDistancePacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSetCameraPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSetCarriedItemPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSetChunkCacheCenterPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSetChunkCacheRadiusPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSetCursorItemPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSetDefaultSpawnPositionPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSetDisplayChatPreviewPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSetDisplayObjectivePacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSetEntityDataPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSetEntityLinkPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSetEntityMotionPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSetEquipmentPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSetExperiencePacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSetHealthPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSetHeldSlotPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSetObjectivePacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSetPassengersPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSetPlayerInventoryPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSetPlayerTeamPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSetScorePacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSetSimulationDistancePacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSetSubtitleTextPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSetTimePacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSetTitlesAnimationPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSetTitlesPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSetTitleTextPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundShowDialogPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSoundEntityPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSoundPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundStartConfigurationPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundStopSoundPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundStoreCookiePacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundSystemChatPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundTabListPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundTagQueryPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundTakeItemEntityPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundTeleportEntityPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundTestInstanceBlockStatusPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundTickingStatePacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundTickingStepPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundTrackedWaypointPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundTransferPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundUpdateAdvancementsPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundUpdateAttributesPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundUpdateEnabledFeaturesPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundUpdateMobEffectPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundUpdateRecipesPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundUpdateTagsPacket.hpp
+    include/protocolCraft/Packets/Game/Clientbound/ClientboundUseBedPacket.hpp
 
-    include/protocolCraft/Messages/Status/Serverbound/ServerboundPingRequestPacket.hpp
-    include/protocolCraft/Messages/Status/Serverbound/ServerboundStatusRequestPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundAcceptTeleportationPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundBlockEntityTagQueryPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundChangeDifficultyPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundChangeGameModePacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundChatAckPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundChatCommandSignedPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundChatCommandPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundChatPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundChatPreviewPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundChatSessionUpdatePacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundChunkBatchReceivedPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundClientCommandPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundClientInformationPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundClientTickEndPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundCommandSuggestionPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundConfigurationAcknowledgedPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundContainerAckPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundContainerButtonClickPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundContainerClickPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundContainerClosePacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundContainerSlotStateChangedPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundCookieResponsePacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundCustomClickActionPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundCustomPayloadPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundDebugSampleSubscriptionPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundEditBookPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundEnchantItemPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundEntityTagQueryPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundInteractPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundJigsawGeneratePacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundKeepAlivePacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundLockDifficultyPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundMovePlayerPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundMovePlayerPacketPos.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundMovePlayerPacketPosRot.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundMovePlayerPacketRot.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundMovePlayerPacketStatusOnly.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundMoveVehiclePacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundPaddleBoatPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundPickItemFromBlockPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundPickItemFromEntityPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundPickItemPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundPingRequestPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundPlaceRecipePacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundPlayerAbilitiesPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundPlayerActionPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundPlayerCommandPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundPlayerInputPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundPlayerLoadedPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundPongPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundRecipeBookChangeSettingsPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundRecipeBookSeenRecipePacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundRecipeBookUpdatePacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundRenameItemPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundResourcePackPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundSeenAdvancementsPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundSelectBundleItemPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundSelectTradePacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundSetBeaconPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundSetCarriedItemPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundSetCommandBlockPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundSetCommandMinecartPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundSetCreativeModeSlotPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundSetJigsawBlockPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundSetStructureBlockPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundSetTestBlockPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundSignUpdatePacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundSwingPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundTeleportToEntityPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundTestInstanceBlockActionPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundUseItemOnPacket.hpp
+    include/protocolCraft/Packets/Game/Serverbound/ServerboundUseItemPacket.hpp
 
 
-    include/protocolCraft/Messages/Configuration/Clientbound/ClientboundCookieRequestPacket.hpp
-    include/protocolCraft/Messages/Configuration/Clientbound/ClientboundCustomPayloadPacket.hpp
-    include/protocolCraft/Messages/Configuration/Clientbound/ClientboundCustomReportDetailsPacket.hpp
-    include/protocolCraft/Messages/Configuration/Clientbound/ClientboundDisconnectPacket.hpp
-    include/protocolCraft/Messages/Configuration/Clientbound/ClientboundFinishConfigurationPacket.hpp
-    include/protocolCraft/Messages/Configuration/Clientbound/ClientboundKeepAlivePacket.hpp
-    include/protocolCraft/Messages/Configuration/Clientbound/ClientboundPingPacket.hpp
-    include/protocolCraft/Messages/Configuration/Clientbound/ClientboundRegistryDataPacket.hpp
-    include/protocolCraft/Messages/Configuration/Clientbound/ClientboundResetChatPacket.hpp
-    include/protocolCraft/Messages/Configuration/Clientbound/ClientboundResourcePackPacket.hpp
-    include/protocolCraft/Messages/Configuration/Clientbound/ClientboundResourcePackPopConfigurationPacket.hpp
-    include/protocolCraft/Messages/Configuration/Clientbound/ClientboundResourcePackPushConfigurationPacket.hpp
-    include/protocolCraft/Messages/Configuration/Clientbound/ClientboundSelectKnownPacksPacket.hpp
-    include/protocolCraft/Messages/Configuration/Clientbound/ClientboundServerLinksPacket.hpp
-    include/protocolCraft/Messages/Configuration/Clientbound/ClientboundStoreCookiePacket.hpp
-    include/protocolCraft/Messages/Configuration/Clientbound/ClientboundTransferPacket.hpp
-    include/protocolCraft/Messages/Configuration/Clientbound/ClientboundUpdateEnabledFeaturesPacket.hpp
-    include/protocolCraft/Messages/Configuration/Clientbound/ClientboundUpdateTagsPacket.hpp
+    include/protocolCraft/Packets/Status/Clientbound/ClientboundPongResponsePacket.hpp
+    include/protocolCraft/Packets/Status/Clientbound/ClientboundStatusResponsePacket.hpp
 
-    include/protocolCraft/Messages/Configuration/Serverbound/ServerboundClientInformationPacket.hpp
-    include/protocolCraft/Messages/Configuration/Serverbound/ServerboundCookieResponsePacket.hpp
-    include/protocolCraft/Messages/Configuration/Serverbound/ServerboundCustomPayloadPacket.hpp
-    include/protocolCraft/Messages/Configuration/Serverbound/ServerboundFinishConfigurationPacket.hpp
-    include/protocolCraft/Messages/Configuration/Serverbound/ServerboundKeepAlivePacket.hpp
-    include/protocolCraft/Messages/Configuration/Serverbound/ServerboundPongPacket.hpp
-    include/protocolCraft/Messages/Configuration/Serverbound/ServerboundResourcePackPacket.hpp
-    include/protocolCraft/Messages/Configuration/Serverbound/ServerboundSelectKnownPacksPacket.hpp
+    include/protocolCraft/Packets/Status/Serverbound/ServerboundPingRequestPacket.hpp
+    include/protocolCraft/Packets/Status/Serverbound/ServerboundStatusRequestPacket.hpp
+
+
+    include/protocolCraft/Packets/Configuration/Clientbound/ClientboundClearDialogPacket.hpp
+    include/protocolCraft/Packets/Configuration/Clientbound/ClientboundCookieRequestPacket.hpp
+    include/protocolCraft/Packets/Configuration/Clientbound/ClientboundCustomPayloadPacket.hpp
+    include/protocolCraft/Packets/Configuration/Clientbound/ClientboundCustomReportDetailsPacket.hpp
+    include/protocolCraft/Packets/Configuration/Clientbound/ClientboundDisconnectPacket.hpp
+    include/protocolCraft/Packets/Configuration/Clientbound/ClientboundFinishConfigurationPacket.hpp
+    include/protocolCraft/Packets/Configuration/Clientbound/ClientboundKeepAlivePacket.hpp
+    include/protocolCraft/Packets/Configuration/Clientbound/ClientboundPingPacket.hpp
+    include/protocolCraft/Packets/Configuration/Clientbound/ClientboundRegistryDataPacket.hpp
+    include/protocolCraft/Packets/Configuration/Clientbound/ClientboundResetChatPacket.hpp
+    include/protocolCraft/Packets/Configuration/Clientbound/ClientboundResourcePackPacket.hpp
+    include/protocolCraft/Packets/Configuration/Clientbound/ClientboundResourcePackPopConfigurationPacket.hpp
+    include/protocolCraft/Packets/Configuration/Clientbound/ClientboundResourcePackPushConfigurationPacket.hpp
+    include/protocolCraft/Packets/Configuration/Clientbound/ClientboundSelectKnownPacksPacket.hpp
+    include/protocolCraft/Packets/Configuration/Clientbound/ClientboundServerLinksPacket.hpp
+    include/protocolCraft/Packets/Configuration/Clientbound/ClientboundShowDialogPacket.hpp
+    include/protocolCraft/Packets/Configuration/Clientbound/ClientboundStoreCookiePacket.hpp
+    include/protocolCraft/Packets/Configuration/Clientbound/ClientboundTransferPacket.hpp
+    include/protocolCraft/Packets/Configuration/Clientbound/ClientboundUpdateEnabledFeaturesPacket.hpp
+    include/protocolCraft/Packets/Configuration/Clientbound/ClientboundUpdateTagsPacket.hpp
+
+    include/protocolCraft/Packets/Configuration/Serverbound/ServerboundClientInformationPacket.hpp
+    include/protocolCraft/Packets/Configuration/Serverbound/ServerboundCookieResponsePacket.hpp
+    include/protocolCraft/Packets/Configuration/Serverbound/ServerboundCustomClickActionPacket.hpp
+    include/protocolCraft/Packets/Configuration/Serverbound/ServerboundCustomPayloadPacket.hpp
+    include/protocolCraft/Packets/Configuration/Serverbound/ServerboundFinishConfigurationPacket.hpp
+    include/protocolCraft/Packets/Configuration/Serverbound/ServerboundKeepAlivePacket.hpp
+    include/protocolCraft/Packets/Configuration/Serverbound/ServerboundPongPacket.hpp
+    include/protocolCraft/Packets/Configuration/Serverbound/ServerboundResourcePackPacket.hpp
+    include/protocolCraft/Packets/Configuration/Serverbound/ServerboundSelectKnownPacksPacket.hpp
 
 
     include/protocolCraft/Types/Advancement.hpp
@@ -306,6 +317,7 @@ set(protocolCraft_PUBLIC_HDR
     include/protocolCraft/Types/ClientInformation.hpp
     include/protocolCraft/Types/CommonPlayerSpawnInfo.hpp
     include/protocolCraft/Types/CriterionProgress.hpp
+    include/protocolCraft/Types/Either.hpp
     include/protocolCraft/Types/EntityModifierData.hpp
     include/protocolCraft/Types/EntityProperty.hpp
     include/protocolCraft/Types/Filterable.hpp
@@ -323,6 +335,7 @@ set(protocolCraft_PUBLIC_HDR
     include/protocolCraft/Types/Record.hpp
     include/protocolCraft/Types/SaltSignature.hpp
     include/protocolCraft/Types/ServerLinksUnstrustedEntry.hpp
+    include/protocolCraft/Types/TestInstanceBlockEntityData.hpp
 
     include/protocolCraft/Types/Chat/Chat.hpp
     include/protocolCraft/Types/Chat/ChatMessageContent.hpp
@@ -357,7 +370,9 @@ set(protocolCraft_PUBLIC_HDR
     include/protocolCraft/Types/Components/DataComponentTypeArmorTrim.hpp
     include/protocolCraft/Types/Components/DataComponentTypeBannerPatternLayers.hpp
     include/protocolCraft/Types/Components/DataComponentTypeBlockItemStateProperties.hpp
+    include/protocolCraft/Types/Components/DataComponentTypeBlocksAttacks.hpp
     include/protocolCraft/Types/Components/DataComponentTypeBoolean.hpp
+    include/protocolCraft/Types/Components/DataComponentTypeBreakSound.hpp
     include/protocolCraft/Types/Components/DataComponentTypeBundleContents.hpp
     include/protocolCraft/Types/Components/DataComponentTypeChargedProjectiles.hpp
     include/protocolCraft/Types/Components/DataComponentTypeComponent.hpp
@@ -372,7 +387,7 @@ set(protocolCraft_PUBLIC_HDR
     include/protocolCraft/Types/Components/DataComponentTypeFireworkExplosion.hpp
     include/protocolCraft/Types/Components/DataComponentTypeFireworks.hpp
     include/protocolCraft/Types/Components/DataComponentTypeFoodProperties.hpp
-    include/protocolCraft/Types/Components/DataComponentTypeHolderInstrument.hpp
+    include/protocolCraft/Types/Components/DataComponentTypeInstrument.hpp
     include/protocolCraft/Types/Components/DataComponentTypeInteger.hpp
     include/protocolCraft/Types/Components/DataComponentTypeItemAttributeModifiers.hpp
     include/protocolCraft/Types/Components/DataComponentTypeItemContainerContents.hpp
@@ -385,31 +400,45 @@ set(protocolCraft_PUBLIC_HDR
     include/protocolCraft/Types/Components/DataComponentTypeMapItemColor.hpp
     include/protocolCraft/Types/Components/DataComponentTypeMapPostProcessing.hpp
     include/protocolCraft/Types/Components/DataComponentTypePotDecorations.hpp
+    include/protocolCraft/Types/Components/DataComponentTypePaintingVariant.hpp
     include/protocolCraft/Types/Components/DataComponentTypePotionContents.hpp
+    include/protocolCraft/Types/Components/DataComponentTypePotionDurationScale.hpp
+    include/protocolCraft/Types/Components/DataComponentTypeProvidesTrimMaterial.hpp
     include/protocolCraft/Types/Components/DataComponentTypeRarity.hpp
     include/protocolCraft/Types/Components/DataComponentTypeRepairable.hpp
     include/protocolCraft/Types/Components/DataComponentTypeResolvableProfile.hpp
     include/protocolCraft/Types/Components/DataComponentTypeResourceLocation.hpp
     include/protocolCraft/Types/Components/DataComponentTypeSuspiciousStewEffects.hpp
     include/protocolCraft/Types/Components/DataComponentTypeTool.hpp
+    include/protocolCraft/Types/Components/DataComponentTypeTooltipDisplay.hpp
     include/protocolCraft/Types/Components/DataComponentTypeUnbreakable.hpp
     include/protocolCraft/Types/Components/DataComponentTypeUnit.hpp
     include/protocolCraft/Types/Components/DataComponentTypeUseRemainder.hpp
+    include/protocolCraft/Types/Components/DataComponentTypeVariantEnum.hpp
+    include/protocolCraft/Types/Components/DataComponentTypeWeapon.hpp
     include/protocolCraft/Types/Components/DataComponentTypeUseCooldown.hpp
     include/protocolCraft/Types/Components/DataComponentTypeWritableBookContent.hpp
     include/protocolCraft/Types/Components/DataComponentTypeWrittenBookContent.hpp
 
     include/protocolCraft/Types/Components/Subtypes/AttributeModifier.hpp
     include/protocolCraft/Types/Components/Subtypes/BannerPatternLayer.hpp
+    include/protocolCraft/Types/Components/Subtypes/BeehiveBlockEntityOccupant.hpp
     include/protocolCraft/Types/Components/Subtypes/BlockPredicate.hpp
-    include/protocolCraft/Types/Components/Subtypes/ItemAttributeModifiersEntry.hpp
+    include/protocolCraft/Types/Components/Subtypes/DamageReduction.hpp
+    include/protocolCraft/Types/Components/Subtypes/Instrument.hpp
+    include/protocolCraft/Types/Components/Subtypes/ItemDamageFunction.hpp
+    include/protocolCraft/Types/Components/Subtypes/JukeboxSong.hpp
+    include/protocolCraft/Types/Components/Subtypes/MaterialAssetGroup.hpp
     include/protocolCraft/Types/Components/Subtypes/MobEffectInstance.hpp
     include/protocolCraft/Types/Components/Subtypes/MobEffectInstanceDetails.hpp
+    include/protocolCraft/Types/Components/Subtypes/PaintingVariant.hpp
     include/protocolCraft/Types/Components/Subtypes/PossibleEffect.hpp
     include/protocolCraft/Types/Components/Subtypes/PropertyMatcher.hpp
     include/protocolCraft/Types/Components/Subtypes/StatePropertiesPredicate.hpp
     include/protocolCraft/Types/Components/Subtypes/SuspiciousStewEntry.hpp
     include/protocolCraft/Types/Components/Subtypes/ToolRule.hpp
+    include/protocolCraft/Types/Components/Subtypes/TrimMaterial.hpp
+    include/protocolCraft/Types/Components/Subtypes/TrimPattern.hpp
 
     include/protocolCraft/Types/Components/Subtypes/Matcher/ExactMatcher.hpp
     include/protocolCraft/Types/Components/Subtypes/Matcher/RangedMatcher.hpp
@@ -422,10 +451,18 @@ set(protocolCraft_PUBLIC_HDR
     include/protocolCraft/Types/Components/Subtypes/ConsumeEffects/RemoveStatusEffectsConsumeEffect.hpp
     include/protocolCraft/Types/Components/Subtypes/ConsumeEffects/TeleportRandomlyConsumeEffect.hpp
 
+    include/protocolCraft/Types/Components/Subtypes/ItemAttributeModifiers/DefaultDisplay.hpp
+    include/protocolCraft/Types/Components/Subtypes/ItemAttributeModifiers/ItemAttributeModifiersDisplay.hpp
+    include/protocolCraft/Types/Components/Subtypes/ItemAttributeModifiers/ItemAttributeModifiersDisplayData.hpp
+    include/protocolCraft/Types/Components/Subtypes/ItemAttributeModifiers/ItemAttributeModifiersEntry.hpp
+    include/protocolCraft/Types/Components/Subtypes/ItemAttributeModifiers/HiddenDisplay.hpp
+    include/protocolCraft/Types/Components/Subtypes/ItemAttributeModifiers/OverrideDisplay.hpp
+
     include/protocolCraft/Types/GameProfile/GameProfile.hpp
     include/protocolCraft/Types/GameProfile/GameProfileProperty.hpp
     include/protocolCraft/Types/GameProfile/ProfilePublicKey.hpp
 
+    include/protocolCraft/Types/Item/HashedSlot.hpp
     include/protocolCraft/Types/Item/ItemCost.hpp
     include/protocolCraft/Types/Item/MerchantOffer.hpp
     include/protocolCraft/Types/Item/Slot.hpp
@@ -488,6 +525,14 @@ set(protocolCraft_PUBLIC_HDR
     include/protocolCraft/Types/Vibrations/PositionSource.hpp
     include/protocolCraft/Types/Vibrations/VibrationPath.hpp
 
+    include/protocolCraft/Types/Waypoints/AzimuthWaypoint.hpp
+    include/protocolCraft/Types/Waypoints/ChunkWaypoint.hpp
+    include/protocolCraft/Types/Waypoints/EmptyWaypoint.hpp
+    include/protocolCraft/Types/Waypoints/TrackedWaypoint.hpp
+    include/protocolCraft/Types/Waypoints/TrackedWaypointData.hpp
+    include/protocolCraft/Types/Waypoints/Vec3iWaypoint.hpp
+    include/protocolCraft/Types/Waypoints/WaypointIcon.hpp
+
     include/protocolCraft/Utilities/AutoSerializedMacros.hpp
     include/protocolCraft/Utilities/AutoSerializedToJson.hpp
     include/protocolCraft/Utilities/ConstexprStrProcessing.hpp
@@ -502,10 +547,10 @@ set(protocolCraft_PUBLIC_HDR
 )
 
 set(protocolCraft_SRC
-    src/BaseMessage.cpp
+    src/BasePacket.cpp
     src/BinaryReadWrite.cpp
-    src/MessageFactory.cpp
     src/NetworkType.cpp
+    src/PacketFactory.cpp
 
     src/Types/Chat/Chat.cpp
 
@@ -514,6 +559,8 @@ set(protocolCraft_SRC
     src/Types/Components/DataComponents.cpp
 
     src/Types/Components/Subtypes/ConsumeEffects/ConsumeEffect.cpp
+
+    src/Types/Components/Subtypes/ItemAttributeModifiers/Display.cpp
 
     src/Types/NBT/NBT.cpp
     src/Types/NBT/Tag.cpp
@@ -525,6 +572,8 @@ set(protocolCraft_SRC
     src/Types/Recipes/SlotDisplay.cpp
 
     src/Types/Vibrations/PositionSource.cpp
+
+    src/Types/Waypoints/TrackedWaypoint.cpp
 
     src/Utilities/GZip.cpp
     src/Utilities/Json.cpp
@@ -558,6 +607,8 @@ set_property(TARGET protocolCraft PROPERTY CXX_STANDARD 17)
 set_property(TARGET protocolCraft PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_target_properties(protocolCraft PROPERTIES DEBUG_POSTFIX "_d")
 set_target_properties(protocolCraft PROPERTIES RELWITHDEBINFO_POSTFIX "_rd")
+# Add special $ORIGIN to rpath so Linux can find shared libraries in same folder
+set_target_properties(protocolCraft PROPERTIES INSTALL_RPATH "$ORIGIN")
 
 if(MSVC)
     # To avoid having folder for each configuration when building with Visual
@@ -603,6 +654,11 @@ if (NOT PROTOCOLCRAFT_STATIC)
     # Add DL lib for linux compilation
     target_link_libraries(protocolCraft PUBLIC ${CMAKE_DL_LIBS})
 endif()
+
+# Setup detailed parsing preprocessor variable
+if(PROTOCOLCRAFT_DETAILED_PARSING)
+    target_compile_definitions(protocolCraft PUBLIC PROTOCOLCRAFT_DETAILED_PARSING=1)
+endif(PROTOCOLCRAFT_DETAILED_PARSING)
 
 # Installation stuff
 include(GNUInstallDirs)

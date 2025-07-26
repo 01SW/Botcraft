@@ -1,3 +1,4 @@
+#if PROTOCOL_VERSION < 770 /* < 1.21.5 */
 #include "botcraft/Game/Entities/entities/animal/WolfEntity.hpp"
 
 #include <mutex>
@@ -198,3 +199,4 @@ namespace Botcraft
     }
 
 }
+#endif

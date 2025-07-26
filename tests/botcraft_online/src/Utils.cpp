@@ -53,8 +53,10 @@ void SendCommandSetItem(const std::string& botname, const std::string& item_name
         command += " {ench:[";
 #elif PROTOCOL_VERSION < 766 /* < 1.20.5 */
         command += "{Enchantments:[";
-#else
+#elif PROTOCOL_VERSION < 770 /* < 1.21.5 */
         command += "[enchantments={levels:{";
+#else
+        command += "[enchantments={";
 #endif
 
         size_t index = 0;
@@ -77,8 +79,10 @@ void SendCommandSetItem(const std::string& botname, const std::string& item_name
 
 #if PROTOCOL_VERSION < 766 /* < 1.20.5 */
         command += "]}";
-#else
+#elif PROTOCOL_VERSION < 770 /* < 1.21.5 */
         command += "}}]";
+#else
+        command += "}]";
 #endif
     }
 
@@ -93,4 +97,30 @@ void SendCommandSetItem(const std::string& botname, const std::string& item_name
 void SendCommandSetItem(const std::string& botname, const std::string& item_name, const Botcraft::EquipmentSlot slot, const Botcraft::Enchantment enchantment)
 {
     return SendCommandSetItem(botname, item_name, slot, { {enchantment, 1} });
+}
+
+std::string ReplaceCharacters(const std::string& in, const std::vector<std::pair<char, std::string>>& replacements)
+{
+    std::string output;
+    output.reserve(in.size());
+
+    for (size_t i = 0; i < in.size(); ++i)
+    {
+        bool found = false;
+        for (size_t j = 0; j < replacements.size(); ++j)
+        {
+            if (replacements[j].first == in[i])
+            {
+                output += replacements[j].second;
+                found = true;
+                break;
+            }
+        }
+        if (!found)
+        {
+            output += in[i];
+        }
+    }
+
+    return output;
 }

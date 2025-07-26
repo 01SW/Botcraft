@@ -4,6 +4,9 @@
 
 #include <memory>
 #include <stdexcept>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include <botcraft/AI/TemplatedBehaviourClient.hpp>
 #include <botcraft/AI/SimpleBehaviourClient.hpp>
@@ -13,13 +16,13 @@
 #include <botcraft/Game/Entities/LocalPlayer.hpp>
 
 template<class ClientType = Botcraft::ManagersClient>
-std::unique_ptr<ClientType> SetupTestBot(const Botcraft::Vector3<double>& offset = { 0,0,0 }, const Botcraft::GameType gamemode = Botcraft::GameType::Survival)
+std::unique_ptr<ClientType> SetupTestBot(const Botcraft::Vector3<double>& offset = { 0,0,0 }, const Botcraft::GameType gamemode = Botcraft::GameType::Survival, const float yaw = 0.0f, const float pitch = 0.0f)
 {
     std::string botname;
     std::unique_ptr<ClientType> bot = TestManager::GetInstance().GetBot<ClientType>(botname, gamemode);
 
     const Botcraft::Vector3<double> pos = offset + TestManager::GetInstance().GetCurrentOffset();
-    TestManager::GetInstance().Teleport(botname, pos);
+    TestManager::GetInstance().Teleport(botname, pos, yaw, pitch);
 
     // Wait for bot to register teleportation
     std::shared_ptr<Botcraft::LocalPlayer> local_player = bot->GetLocalPlayer();
@@ -111,3 +114,5 @@ bool GiveItem(std::unique_ptr<ClientType>& bot, const std::string& item_name, co
 void SendCommandSetItem(const std::string& botname, const std::string& item_name, const Botcraft::EquipmentSlot slot, const std::map<Botcraft::Enchantment, int>& enchantments = {});
 
 void SendCommandSetItem(const std::string& botname, const std::string& item_name, const Botcraft::EquipmentSlot slot, const Botcraft::Enchantment enchantment);
+
+std::string ReplaceCharacters(const std::string& in, const std::vector<std::pair<char, std::string>>& replacements = { {'"', "\\\""}, {'\n', "\\n"} });

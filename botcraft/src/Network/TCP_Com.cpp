@@ -19,21 +19,20 @@ namespace Botcraft
 {
     TCP_Com::TCP_Com(const std::string& address,
         std::function<void(const std::vector<unsigned char>&)> callback)
-        : socket(io_service), initialized(false)
+        : socket(io_context), initialized(false)
     {
         NewPacketCallback = callback;
 
         SetIPAndPortFromAddress(address);
 
-        asio::ip::tcp::resolver resolver(io_service);
-        asio::ip::tcp::resolver::query query(ip, std::to_string(port));
-        asio::ip::tcp::resolver::iterator iterator = resolver.resolve(query);
+        asio::ip::tcp::resolver resolver(io_context);
+        asio::ip::tcp::resolver::results_type results = resolver.resolve(ip, std::to_string(port));
         LOG_INFO("Trying to connect to " << ip << ":" << port);
-        asio::async_connect(socket, iterator,
+        asio::async_connect(socket, results,
             std::bind(&TCP_Com::handle_connect, this,
             std::placeholders::_1));
 
-        thread_com = std::thread([&] { io_service.run(); });
+        thread_com = std::thread([&] { io_context.run(); });
         Logger::GetInstance().RegisterThread(thread_com.get_id(), "NetworkIOService");
     }
 
@@ -51,25 +50,25 @@ namespace Botcraft
         return initialized;
     }
 
-    void TCP_Com::SendPacket(const std::vector<unsigned char>& msg)
+    void TCP_Com::SendPacket(const std::vector<unsigned char>& bytes)
     {
         std::vector<unsigned char> sized_packet;
-        sized_packet.reserve(msg.size() + 5);
-        ProtocolCraft::WriteData<ProtocolCraft::VarInt>(static_cast<int>(msg.size()), sized_packet);
-        sized_packet.insert(sized_packet.end(), msg.begin(), msg.end());
+        sized_packet.reserve(bytes.size() + 5);
+        ProtocolCraft::WriteData<ProtocolCraft::VarInt>(static_cast<int>(bytes.size()), sized_packet);
+        sized_packet.insert(sized_packet.end(), bytes.begin(), bytes.end());
 
 #ifdef USE_ENCRYPTION
         if (encrypter != nullptr)
         {
             std::vector<unsigned char> encrypted = encrypter->Encrypt(sized_packet);
-            io_service.post(std::bind(&TCP_Com::do_write, this, encrypted));
+            asio::post(io_context, std::bind(&TCP_Com::do_write, this, encrypted));
         }
         else
         {
-            io_service.post(std::bind(&TCP_Com::do_write, this, sized_packet));
+            asio::post(io_context, std::bind(&TCP_Com::do_write, this, sized_packet));
         }
 #else
-        io_service.post(std::bind(&TCP_Com::do_write, this, sized_packet));
+        asio::post(io_context, std::bind(&TCP_Com::do_write, this, sized_packet));
 #endif
     }
 
@@ -92,7 +91,7 @@ namespace Botcraft
 
     void TCP_Com::close()
     {
-        io_service.post(std::bind(&TCP_Com::do_close, this));
+        asio::post(io_context, std::bind(&TCP_Com::do_close, this));
     }
 
     void TCP_Com::handle_connect(const asio::error_code& error)
@@ -101,7 +100,7 @@ namespace Botcraft
         {
             LOG_INFO("Connection to server established.");
             initialized = true;
-            socket.async_read_some(asio::buffer(read_msg.data(), read_msg.size()),
+            socket.async_read_some(asio::buffer(read_packet.data(), read_packet.size()),
                 std::bind(&TCP_Com::handle_read, this,
                 std::placeholders::_1, std::placeholders::_2));
         }
@@ -119,31 +118,31 @@ namespace Botcraft
             if (encrypter != nullptr)
             {
                 std::vector<unsigned char> decrypted(bytes_transferred);
-                std::copy_n(read_msg.begin(), bytes_transferred, decrypted.data());
+                std::copy_n(read_packet.begin(), bytes_transferred, decrypted.data());
                 decrypted = encrypter->Decrypt(decrypted);
                 for (int i = 0; i < decrypted.size(); ++i)
                 {
-                    input_msg.push_back(decrypted[i]);
+                    input_packet.push_back(decrypted[i]);
                 }
             }
             else
             {
                 for (int i = 0; i < bytes_transferred; ++i)
                 {
-                    input_msg.push_back(read_msg[i]);
+                    input_packet.push_back(read_packet[i]);
                 }
             }
 #else
             for (int i = 0; i < bytes_transferred; ++i)
             {
-                input_msg.push_back(read_msg[i]);
+                input_packet.push_back(read_packet[i]);
             }
 #endif
 
-            while (input_msg.size() != 0)
+            while (input_packet.size() != 0)
             {
-                std::vector<unsigned char>::const_iterator read_iter = input_msg.begin();
-                size_t max_length = input_msg.size();
+                std::vector<unsigned char>::const_iterator read_iter = input_packet.begin();
+                size_t max_length = input_packet.size();
                 int packet_length;
                 try
                 {
@@ -153,15 +152,15 @@ namespace Botcraft
                 {
                     break;
                 }
-                const int bytes_read = static_cast<int>(std::distance<std::vector<unsigned char>::const_iterator>(input_msg.begin(), read_iter));
+                const int bytes_read = static_cast<int>(std::distance<std::vector<unsigned char>::const_iterator>(input_packet.begin(), read_iter));
                 std::vector<unsigned char> data_packet;
 
-                if (packet_length > 0 && input_msg.size() >= bytes_read + packet_length)
+                if (packet_length > 0 && input_packet.size() >= bytes_read + packet_length)
                 {
-                    data_packet = std::vector<unsigned char>(input_msg.begin() + bytes_read, input_msg.begin() + bytes_read + packet_length);
+                    data_packet = std::vector<unsigned char>(input_packet.begin() + bytes_read, input_packet.begin() + bytes_read + packet_length);
 
                     NewPacketCallback(data_packet);
-                    input_msg.erase(input_msg.begin(), input_msg.begin() + bytes_read + packet_length);
+                    input_packet.erase(input_packet.begin(), input_packet.begin() + bytes_read + packet_length);
                 }
                 else
                 {
@@ -169,7 +168,7 @@ namespace Botcraft
                 }
             }
 
-            socket.async_read_some(asio::buffer(read_msg.data(), read_msg.size()),
+            socket.async_read_some(asio::buffer(read_packet.data(), read_packet.size()),
                 std::bind(&TCP_Com::handle_read, this,
                 std::placeholders::_1, std::placeholders::_2));
         }
@@ -179,18 +178,18 @@ namespace Botcraft
         }
     }
 
-    void TCP_Com::do_write(const std::vector<unsigned char>& msg)
+    void TCP_Com::do_write(const std::vector<unsigned char>& bytes)
     {
         mutex_output.lock();
-        bool write_in_progress = !output_msg.empty();
-        output_msg.push_back(msg);
+        bool write_in_progress = !output_packet.empty();
+        output_packet.push_back(bytes);
         mutex_output.unlock();
 
         if (!write_in_progress)
         {
             asio::async_write(socket,
-                asio::buffer(output_msg.front().data(),
-                output_msg.front().size()),
+                asio::buffer(output_packet.front().data(),
+                output_packet.front().size()),
                 std::bind(&TCP_Com::handle_write, this,
                 std::placeholders::_1));
         }
@@ -201,14 +200,14 @@ namespace Botcraft
         if (!error)
         {
             mutex_output.lock();
-            output_msg.pop_front();
+            output_packet.pop_front();
             mutex_output.unlock();
 
-            if (!output_msg.empty())
+            if (!output_packet.empty())
             {
                 asio::async_write(socket,
-                    asio::buffer(output_msg.front().data(),
-                    output_msg.front().size()),
+                    asio::buffer(output_packet.front().data(),
+                    output_packet.front().size()),
                     std::bind(&TCP_Com::handle_write, this,
                     std::placeholders::_1));
             }
@@ -253,7 +252,7 @@ namespace Botcraft
 
         // If port is unknown we first try a SRV DNS lookup
         LOG_INFO("Performing SRV DNS lookup on " << "_minecraft._tcp." << address << " to find an endpoint");
-        asio::ip::udp::socket udp_socket(io_service);
+        asio::ip::udp::socket udp_socket(io_context);
 
         // Create the query
         DNSMessage query;
@@ -282,7 +281,7 @@ namespace Botcraft
         std::vector<unsigned char> encoded_query;
         query.Write(encoded_query);
         udp_socket.open(asio::ip::udp::v4());
-        asio::ip::udp::endpoint endpoint(asio::ip::address::from_string("8.8.8.8"), 53);
+        asio::ip::udp::endpoint endpoint(asio::ip::make_address("8.8.8.8"), 53);
         udp_socket.send_to(asio::buffer(encoded_query), endpoint);
 
         // Wait for the answer

@@ -17,6 +17,7 @@ namespace Botcraft
         virtual ~PlayerEntity();
 
         // Object related stuff
+        /// @brief Get the name of this entity TYPE as a string. For player name see NetworkManager::GetMyName()
         virtual std::string GetName() const override;
         virtual EntityType GetType() const override;
 
@@ -70,6 +71,9 @@ namespace Botcraft
         double GetAttributePlayerSneakingSpeedValue() const;
         double GetAttributePlayerMiningEfficiencyValue() const;
         double GetAttributePlayerSweepingDamageRatioValue() const;
+#endif
+#if PROTOCOL_VERSION > 770 /* > 1.21.5 */
+        double GetAttributeWaypointReceiveRangeValue() const;
 #endif
 
     protected:

@@ -41,7 +41,7 @@ Main features are listed below. To see the evolution of the project, check the [
 
 - Connection to minecraft server (both offline "cracked" mode and online connection with ~~Mojang or~~ Microsoft account)
 - DNS server name resolution with and without SRV record
-- All official releases from 1.12.2 to 1.21.4 supported
+- All official releases from 1.12.2 to 1.21.8 supported
 - Compression
 - Signed chat system for 1.19+ versions
 - Vanilla physics and collisions ([wiki page](https://github.com/adepierre/Botcraft/wiki/Physics) for details)
@@ -68,7 +68,7 @@ Available bot behaviours includes:
 
 - Anti-cheat evasion: Botcraft actions/movements are most of the time vanilla-like, but not human-like. Only use Botcraft on your own servers or ask permission first if you don't want your account to be banned.
 - Modded servers: Botcraft aims to be compatible with vanilla server first. When possible, modded servers are also (partially) supported, but given the large diversity of servers and mods, Botcraft does not aim to work on every possible server/mod combination. See [mod support](#mod-support) section for details.
-
+- Rendering and UI may not work on macOS due to platform incompatibility. Everything can run fine even with GUI enable, but macOS will not display the rendering window, making it pointless. I recommend using ``BOTCRAFT_USE_OPENGL_GUI=OFF`` on macOS.
 
 ### Nice gifs
 
@@ -173,7 +173,7 @@ Botcraft has multiple ``XXXClient`` classes you can inherit from depending on wh
 
 ## Connection
 
-Botcraft supports both servers in offline ("cracked") and online mode. If the server is in online mode, a valid Microsoft account (Mojang accounts are not valid anymore) owning the game is required. Detailed information about how to connect with offline or  Microsoft accounts can be found in the [wiki page](https://github.com/adepierre/Botcraft/wiki/Connection).
+Botcraft supports both servers in offline ("cracked") and online mode. If the server is in online mode, a valid Microsoft account (Mojang accounts are not valid anymore) owning the game is required. Detailed information about how to connect with offline or Microsoft accounts can be found in the [wiki page](https://github.com/adepierre/Botcraft/wiki/Connection).
 
 ## Mod support
 

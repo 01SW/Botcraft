@@ -40,6 +40,7 @@ namespace Botcraft
         should_run = false;
         teleport_id = std::nullopt;
         ticks_since_last_position_sent = 0;
+        double_tap_cause_sprint = true;
 
         elytra_item = AssetsManager::getInstance().GetItem("minecraft:elytra");
         if (elytra_item == nullptr)
@@ -70,13 +71,24 @@ namespace Botcraft
         }
     }
 
+    void PhysicsManager::SetDoubleTapCauseSprint(const bool b)
+    {
+        double_tap_cause_sprint = b;
+        // Reset sprint_double_tap_trigger_time to 0 if b is false
+        if (player != nullptr)
+        {
+            std::scoped_lock<std::shared_mutex> lock(player->entity_mutex);
+            player->sprint_double_tap_trigger_time *= b;
+        }
+    }
+
     double PhysicsManager::GetMsPerTick() const
     {
         return ms_per_tick;
     }
 
 
-    void PhysicsManager::Handle(ClientboundLoginPacket& msg)
+    void PhysicsManager::Handle(ClientboundLoginPacket& packet)
     {
         // Reset the player because *some* non vanilla servers
         // sends new login packets
@@ -93,7 +105,7 @@ namespace Botcraft
         }
     }
 
-    void PhysicsManager::Handle(ClientboundPlayerPositionPacket& msg)
+    void PhysicsManager::Handle(ClientboundPlayerPositionPacket& packet)
     {
         if (player == nullptr)
         {
@@ -103,35 +115,35 @@ namespace Botcraft
 
         std::scoped_lock<std::shared_mutex> lock(player->entity_mutex);
 #if PROTOCOL_VERSION < 768 /* < 1.21.2 */
-        if (msg.GetRelativeArguments() & 0x01)
+        if (packet.GetRelativeArguments() & 0x01)
         {
-            player->position.x = player->position.x + msg.GetX();
+            player->position.x = player->position.x + packet.GetX();
         }
         else
         {
-            player->position.x = msg.GetX();
+            player->position.x = packet.GetX();
             player->speed.x = 0.0;
         }
-        if (msg.GetRelativeArguments() & 0x02)
+        if (packet.GetRelativeArguments() & 0x02)
         {
-            player->position.y = player->position.y + msg.GetY();
+            player->position.y = player->position.y + packet.GetY();
         }
         else
         {
-            player->position.y = msg.GetY();
+            player->position.y = packet.GetY();
             player->speed.y = 0.0;
         }
-        if (msg.GetRelativeArguments() & 0x04)
+        if (packet.GetRelativeArguments() & 0x04)
         {
-            player->position.z = player->position.z + msg.GetZ();
+            player->position.z = player->position.z + packet.GetZ();
         }
         else
         {
-            player->position.z = msg.GetZ();
+            player->position.z = packet.GetZ();
             player->speed.z = 0.0;
         }
-        player->yaw = msg.GetRelativeArguments() & 0x08 ? player->yaw + msg.GetYRot() : msg.GetYRot();
-        player->pitch = msg.GetRelativeArguments() & 0x10 ? player->pitch + msg.GetXRot() : msg.GetXRot();
+        player->yaw = packet.GetRelativeArguments() & 0x08 ? player->yaw + packet.GetYRot() : packet.GetYRot();
+        player->pitch = packet.GetRelativeArguments() & 0x10 ? player->pitch + packet.GetXRot() : packet.GetXRot();
 
         player->previous_position = player->position;
         player->previous_yaw = player->yaw;
@@ -139,12 +151,12 @@ namespace Botcraft
 #else
         for (int i = 0; i < 3; ++i)
         {
-            player->position[i] = msg.GetRelatives() & (1 << i) ? player->position[i] + msg.GetChange().GetPosition()[i] : msg.GetChange().GetPosition()[i];
+            player->position[i] = packet.GetRelatives() & (1 << i) ? player->position[i] + packet.GetChange().GetPosition()[i] : packet.GetChange().GetPosition()[i];
         }
-        const float new_yaw = msg.GetRelatives() & (1 << 3) ? player->yaw + msg.GetChange().GetYRot() : msg.GetChange().GetYRot();
-        const float new_pitch = msg.GetRelatives() & (1 << 4) ? player->pitch + msg.GetChange().GetXRot() : msg.GetChange().GetXRot();
+        const float new_yaw = packet.GetRelatives() & (1 << 3) ? player->yaw + packet.GetChange().GetYRot() : packet.GetChange().GetYRot();
+        const float new_pitch = packet.GetRelatives() & (1 << 4) ? player->pitch + packet.GetChange().GetXRot() : packet.GetChange().GetXRot();
         Vector3<double> speed = player->speed;
-        if (msg.GetRelatives() & (1 << 8)) // Rotate delta, not sure what it's for...
+        if (packet.GetRelatives() & (1 << 8)) // Rotate delta, not sure what it's for...
         {
             const float delta_yaw = player->yaw - new_yaw;
             const float delta_pitch = player->pitch - new_pitch;
@@ -165,14 +177,14 @@ namespace Botcraft
         player->pitch = new_pitch;
         for (int i = 0; i < 3; ++i)
         {
-            player->speed[i] = msg.GetRelatives() & (1 << (5 + i)) ? speed[i] + msg.GetChange().GetDeltaMovement()[i] : msg.GetChange().GetDeltaMovement()[i];
+            player->speed[i] = packet.GetRelatives() & (1 << (5 + i)) ? speed[i] + packet.GetChange().GetDeltaMovement()[i] : packet.GetChange().GetDeltaMovement()[i];
         }
         for (int i = 0; i < 3; ++i)
         {
-            player->previous_position[i] = msg.GetRelatives() & (1 << i) ? player->previous_position[i] + msg.GetChange().GetPosition()[i] : msg.GetChange().GetPosition()[i];
+            player->previous_position[i] = packet.GetRelatives() & (1 << i) ? player->previous_position[i] + packet.GetChange().GetPosition()[i] : packet.GetChange().GetPosition()[i];
         }
-        player->previous_yaw = msg.GetRelatives() & (1 << 3) ? player->yaw + msg.GetChange().GetYRot() : msg.GetChange().GetYRot();
-        player->previous_pitch = msg.GetRelatives() & (1 << 4) ? player->pitch + msg.GetChange().GetXRot() : msg.GetChange().GetXRot();
+        player->previous_yaw = packet.GetRelatives() & (1 << 3) ? player->yaw + packet.GetChange().GetYRot() : packet.GetChange().GetYRot();
+        player->previous_pitch = packet.GetRelatives() & (1 << 4) ? player->pitch + packet.GetChange().GetXRot() : packet.GetChange().GetXRot();
 #endif
         player->UpdateVectors();
 
@@ -180,14 +192,14 @@ namespace Botcraft
         // Sending it now causes huge slow down of the tests (lag when
         // botcraft_0 is teleported to place structure block/signs).
         // I'm not sure what causes this behaviour (server side?)
-        teleport_id = msg.GetId_();
+        teleport_id = packet.GetId_();
     }
 
 #if PROTOCOL_VERSION > 764 /* > 1.20.2 */
-    void PhysicsManager::Handle(ClientboundTickingStatePacket& msg)
+    void PhysicsManager::Handle(ClientboundTickingStatePacket& packet)
     {
         // If the game is frozen, physics run normally for players
-        if (msg.GetIsFrozen())
+        if (packet.GetIsFrozen())
         {
             ms_per_tick = 50.0;
             return;
@@ -195,12 +207,12 @@ namespace Botcraft
 
         // Vanilla behaviour: slowed down but never speed up, even if tick rate is > 20/s
         // TODO: add a parameter to allow non-vanilla client speed up for higher tick rates?
-        ms_per_tick = std::max(50.0, 1000.0 / static_cast<double>(msg.GetTickRate()));
+        ms_per_tick = std::max(50.0, 1000.0 / static_cast<double>(packet.GetTickRate()));
     }
 #endif
 
 #if PROTOCOL_VERSION > 767 /* > 1.21.1 */
-    void PhysicsManager::Handle(ClientboundPlayerRotationPacket& msg)
+    void PhysicsManager::Handle(ClientboundPlayerRotationPacket& packet)
     {
         if (player == nullptr)
         {
@@ -209,8 +221,8 @@ namespace Botcraft
         }
 
         std::scoped_lock<std::shared_mutex> lock(player->entity_mutex);
-        player->yaw = msg.GetYRot();
-        player->pitch = msg.GetXRot();
+        player->yaw = packet.GetYRot();
+        player->pitch = packet.GetXRot();
         player->previous_yaw = player->yaw;
         player->previous_pitch = player->pitch;
     }
@@ -238,35 +250,35 @@ namespace Botcraft
                     // Send player updated position with onground set to false to mimic vanilla client behaviour
                     if (teleport_id.has_value())
                     {
-                        std::shared_ptr<ServerboundMovePlayerPacketPosRot> updated_position_msg = std::make_shared<ServerboundMovePlayerPacketPosRot>();
-                        updated_position_msg->SetX(player->position.x);
-                        updated_position_msg->SetY(player->position.y);
-                        updated_position_msg->SetZ(player->position.z);
-                        updated_position_msg->SetYRot(player->yaw);
-                        updated_position_msg->SetXRot(player->pitch);
-                        updated_position_msg->SetOnGround(false);
+                        std::shared_ptr<ServerboundMovePlayerPacketPosRot> updated_position_packet = std::make_shared<ServerboundMovePlayerPacketPosRot>();
+                        updated_position_packet->SetX(player->position.x);
+                        updated_position_packet->SetY(player->position.y);
+                        updated_position_packet->SetZ(player->position.z);
+                        updated_position_packet->SetYRot(player->yaw);
+                        updated_position_packet->SetXRot(player->pitch);
+                        updated_position_packet->SetOnGround(false);
 #if PROTOCOL_VERSION > 767 /* > 1.21.1 */
-                        updated_position_msg->SetHorizontalCollision(false);
+                        updated_position_packet->SetHorizontalCollision(false);
 #endif
 
-                        std::shared_ptr<ServerboundAcceptTeleportationPacket> accept_tp_msg = std::make_shared<ServerboundAcceptTeleportationPacket>();
-                        accept_tp_msg->SetId_(teleport_id.value());
+                        std::shared_ptr<ServerboundAcceptTeleportationPacket> accept_tp_packet = std::make_shared<ServerboundAcceptTeleportationPacket>();
+                        accept_tp_packet->SetId_(teleport_id.value());
 
                         // Before 1.21.2 -> Accept TP then move player, 1.21.2+ -> move player then accept TP
 #if PROTOCOL_VERSION < 768 /* < 1.21.2 */
-                        network_manager->Send(accept_tp_msg);
-                        network_manager->Send(updated_position_msg);
+                        network_manager->Send(accept_tp_packet);
+                        network_manager->Send(updated_position_packet);
 #else
-                        network_manager->Send(updated_position_msg);
-                        network_manager->Send(accept_tp_msg);
+                        network_manager->Send(updated_position_packet);
+                        network_manager->Send(accept_tp_packet);
 #endif
                         teleport_id = std::nullopt;
                     }
                     PhysicsTick();
                 }
 #if PROTOCOL_VERSION > 767 /* > 1.21.1 */
-                std::shared_ptr<ServerboundClientTickEndPacket> tick_end_msg = std::make_shared<ServerboundClientTickEndPacket>();
-                network_manager->Send(tick_end_msg);
+                std::shared_ptr<ServerboundClientTickEndPacket> tick_end_packet = std::make_shared<ServerboundClientTickEndPacket>();
+                network_manager->Send(tick_end_packet);
 #endif
             }
             // Wait for end of tick
@@ -323,6 +335,7 @@ namespace Botcraft
                 } // Entity::baseTick
 
                 { // LocalPlayer::aiStep
+                    player->sprint_double_tap_trigger_time = std::max(0, player->sprint_double_tap_trigger_time - 1);
 
                     InputsToCrouch();
 
@@ -625,12 +638,34 @@ namespace Botcraft
         player->crouching = !IsSwimmingAndNotFlying() && player->previous_sneak;
 #endif
 
-        // If crouch, slow down player inputs
 #if PROTOCOL_VERSION > 404 /* > 1.13.2 */
-        if (player->crouching || (player->GetDataPoseImpl() == Pose::Swimming && !player->in_water))
+        const bool is_moving_slowly = player->crouching || (player->GetDataPoseImpl() == Pose::Swimming && !player->in_water);
 #else
-        if (player->crouching)
+        const bool is_moving_slowly = player->crouching;
 #endif
+
+#if PROTOCOL_VERSION > 768 /* > 1.21.3 */
+        bool has_blindness = false;
+        for (const auto& effect : player->effects)
+        {
+            if (effect.type == EntityEffectType::Blindness && effect.end > std::chrono::steady_clock::now())
+            {
+                has_blindness = true;
+                break;
+            }
+        }
+
+        // Stop sprinting when crouching fix in 1.21.4+
+        if (player->GetDataSharedFlagsIdImpl(EntitySharedFlagsId::FallFlying) ||
+            has_blindness ||
+            is_moving_slowly)
+        {
+            SetSprinting(false);
+        }
+#endif
+
+        // If crouch, slow down player inputs
+        if (is_moving_slowly)
         {
 #if PROTOCOL_VERSION < 759 /* < 1.19 */
             constexpr float sneak_coefficient = 0.3f;
@@ -650,6 +685,21 @@ namespace Botcraft
 
     void PhysicsManager::InputsToSprint() const
     {
+        const bool was_sneaking = player->previous_sneak;
+        const bool had_enough_impulse_to_start_sprinting = player->previous_forward >= (player->under_water ? 1e-5f : 0.8f);
+        const bool has_enough_impulse_to_start_sprinting = player->inputs.forward_axis >= (player->under_water ? 1e-5f : 0.8f);
+
+#if PROTOCOL_VERSION > 404 /* > 1.13.2 */
+        const bool is_moving_slowly = player->crouching || (player->GetDataPoseImpl() == Pose::Swimming && !player->in_water);
+#else
+        const bool is_moving_slowly = player->crouching;
+#endif
+
+        if (was_sneaking)
+        {
+            player->sprint_double_tap_trigger_time = 0;
+        }
+
         bool has_blindness = false;
         for (const auto& effect : player->effects)
         {
@@ -660,18 +710,28 @@ namespace Botcraft
             }
         }
 
-        const bool can_start_sprinting = !player->GetDataSharedFlagsIdImpl(EntitySharedFlagsId::Sprinting) &&
-            player->inputs.forward_axis >= (player->under_water ? 1e-5 : 0.8) &&
-            (player->may_fly || player->food > 6) &&
-            !player->GetDataSharedFlagsIdImpl(EntitySharedFlagsId::FallFlying) &&
-            !has_blindness;
+        const bool can_start_sprinting = !(
+            player->GetDataSharedFlagsIdImpl(EntitySharedFlagsId::Sprinting) ||
+            !has_enough_impulse_to_start_sprinting ||
+            !(player->food > 6 || player->may_fly) ||
+            has_blindness ||
+            player->GetDataSharedFlagsIdImpl(EntitySharedFlagsId::FallFlying) ||
+            (is_moving_slowly && !player->under_water)
+        );
 
-        // Start sprinting if possible
-        const bool could_sprint_previous = player->previous_forward >= (player->under_water ? 1e-5f : 0.8f);
-        if (can_start_sprinting && player->inputs.sprint && (
-            (!player->in_water || player->under_water) ||
-            ((player->on_ground || player->under_water) && !player->previous_sneak && !could_sprint_previous)
-            ))
+        if ((player->on_ground || player->under_water) && !was_sneaking && !had_enough_impulse_to_start_sprinting && can_start_sprinting)
+        {
+            if (player->sprint_double_tap_trigger_time > 0 || player->inputs.sprint)
+            {
+                SetSprinting(true);
+            }
+            else
+            {
+                player->sprint_double_tap_trigger_time = 7 * double_tap_cause_sprint;
+            }
+        }
+
+        if ((!player->in_water || player->under_water) && can_start_sprinting && player->inputs.sprint)
         {
             SetSprinting(true);
         }
@@ -706,7 +766,8 @@ namespace Botcraft
                 EntityAttribute::Modifier{
                     0.3,                                                // amount
                     EntityAttribute::Modifier::Operation::MultiplyTotal // operation
-                });
+                }
+            );
         }
     }
 
@@ -767,10 +828,10 @@ namespace Botcraft
                 Utilities::GetDamageCount(chest_slot) < elytra_item->GetMaxDurability() - 1)
             {
                 player->SetDataSharedFlagsIdImpl(EntitySharedFlagsId::FallFlying, true);
-                std::shared_ptr<ServerboundPlayerCommandPacket> player_command_msg = std::make_shared<ServerboundPlayerCommandPacket>();
-                player_command_msg->SetAction(static_cast<int>(PlayerCommandAction::StartFallFlying));
-                player_command_msg->SetId_(player->entity_id);
-                network_manager->Send(player_command_msg);
+                std::shared_ptr<ServerboundPlayerCommandPacket> player_command_packet = std::make_shared<ServerboundPlayerCommandPacket>();
+                player_command_packet->SetAction(static_cast<int>(PlayerCommandAction::StartFallFlying));
+                player_command_packet->SetId_(player->entity_id);
+                network_manager->Send(player_command_packet);
             }
         }
     }
@@ -876,15 +937,18 @@ namespace Botcraft
 
 #if PROTOCOL_VERSION > 767 /* > 1.21.1 */
         // Before 1.21.2, shift was sent after jump
+        // After 1.21.5 the ServerboundPlayerCommandPacket is not sent anymore
+#if PROTOCOL_VERSION < 771 /* < 1.21.6 */
         const bool shift_key_down = player->inputs.sneak;
         if (shift_key_down != player->previous_shift_key_down)
         {
-            std::shared_ptr<ServerboundPlayerCommandPacket> player_command_msg = std::make_shared<ServerboundPlayerCommandPacket>();
-            player_command_msg->SetAction(static_cast<int>(shift_key_down ? PlayerCommandAction::PressShiftKey : PlayerCommandAction::ReleaseShifKey));
-            player_command_msg->SetId_(player->entity_id);
-            network_manager->Send(player_command_msg);
+            std::shared_ptr<ServerboundPlayerCommandPacket> player_command_packet = std::make_shared<ServerboundPlayerCommandPacket>();
+            player_command_packet->SetAction(static_cast<int>(shift_key_down ? PlayerCommandAction::PressShiftKey : PlayerCommandAction::ReleaseShifKey));
+            player_command_packet->SetId_(player->entity_id);
+            network_manager->Send(player_command_packet);
             player->previous_shift_key_down = shift_key_down;
         }
+#endif
 
         if (player->last_sent_inputs.sneak        != player->inputs.sneak ||
             player->last_sent_inputs.jump         != player->inputs.jump ||
@@ -892,15 +956,15 @@ namespace Botcraft
             player->last_sent_inputs.forward_axis != player->inputs.forward_axis ||
             player->last_sent_inputs.left_axis    != player->inputs.left_axis)
         {
-            std::shared_ptr<ServerboundPlayerInputPacket> player_input_msg = std::make_shared<ServerboundPlayerInputPacket>();
-            player_input_msg->SetForward(player->inputs.forward_axis > 0.0f);
-            player_input_msg->SetBackward(player->inputs.forward_axis < 0.0f);
-            player_input_msg->SetLeft(player->inputs.left_axis > 0.0f);
-            player_input_msg->SetRight(player->inputs.left_axis < 0.0f);
-            player_input_msg->SetJump(player->inputs.jump);
-            player_input_msg->SetShift(player->inputs.sneak);
-            player_input_msg->SetSprint(player->inputs.sprint);
-            network_manager->Send(player_input_msg);
+            std::shared_ptr<ServerboundPlayerInputPacket> player_input_packet = std::make_shared<ServerboundPlayerInputPacket>();
+            player_input_packet->SetForward(player->inputs.forward_axis > 0.0f);
+            player_input_packet->SetBackward(player->inputs.forward_axis < 0.0f);
+            player_input_packet->SetLeft(player->inputs.left_axis > 0.0f);
+            player_input_packet->SetRight(player->inputs.left_axis < 0.0f);
+            player_input_packet->SetJump(player->inputs.jump);
+            player_input_packet->SetShift(player->inputs.sneak);
+            player_input_packet->SetSprint(player->inputs.sprint);
+            network_manager->Send(player_input_packet);
             player->last_sent_inputs = player->inputs;
         }
 #endif
@@ -908,10 +972,10 @@ namespace Botcraft
         const bool sprinting = player->GetDataSharedFlagsIdImpl(EntitySharedFlagsId::Sprinting);
         if (sprinting != player->previous_sprinting)
         {
-            std::shared_ptr<ServerboundPlayerCommandPacket> player_command_msg = std::make_shared<ServerboundPlayerCommandPacket>();
-            player_command_msg->SetAction(static_cast<int>(sprinting ? PlayerCommandAction::StartSprinting : PlayerCommandAction::StopSprinting));
-            player_command_msg->SetId_(player->entity_id);
-            network_manager->Send(player_command_msg);
+            std::shared_ptr<ServerboundPlayerCommandPacket> player_command_packet = std::make_shared<ServerboundPlayerCommandPacket>();
+            player_command_packet->SetAction(static_cast<int>(sprinting ? PlayerCommandAction::StartSprinting : PlayerCommandAction::StopSprinting));
+            player_command_packet->SetId_(player->entity_id);
+            network_manager->Send(player_command_packet);
             player->previous_sprinting = sprinting;
         }
 
@@ -920,10 +984,10 @@ namespace Botcraft
         const bool shift_key_down = player->inputs.sneak;
         if (shift_key_down != player->previous_shift_key_down)
         {
-            std::shared_ptr<ServerboundPlayerCommandPacket> player_command_msg = std::make_shared<ServerboundPlayerCommandPacket>();
-            player_command_msg->SetAction(static_cast<int>(shift_key_down ? PlayerCommandAction::PressShiftKey : PlayerCommandAction::ReleaseShifKey));
-            player_command_msg->SetId_(player->entity_id);
-            network_manager->Send(player_command_msg);
+            std::shared_ptr<ServerboundPlayerCommandPacket> player_command_packet = std::make_shared<ServerboundPlayerCommandPacket>();
+            player_command_packet->SetAction(static_cast<int>(shift_key_down ? PlayerCommandAction::PressShiftKey : PlayerCommandAction::ReleaseShifKey));
+            player_command_packet->SetId_(player->entity_id);
+            network_manager->Send(player_command_packet);
             player->previous_shift_key_down = shift_key_down;
         }
 #endif
@@ -932,40 +996,40 @@ namespace Botcraft
         const bool has_rotated = player->yaw != player->previous_yaw || player->pitch != player->previous_pitch;
         if (has_moved && has_rotated)
         {
-            std::shared_ptr<ServerboundMovePlayerPacketPosRot> move_player_msg = std::make_shared<ServerboundMovePlayerPacketPosRot>();
-            move_player_msg->SetX(player->position.x);
-            move_player_msg->SetY(player->position.y);
-            move_player_msg->SetZ(player->position.z);
-            move_player_msg->SetXRot(player->pitch);
-            move_player_msg->SetYRot(player->yaw);
-            move_player_msg->SetOnGround(player->on_ground);
+            std::shared_ptr<ServerboundMovePlayerPacketPosRot> move_player_packet = std::make_shared<ServerboundMovePlayerPacketPosRot>();
+            move_player_packet->SetX(player->position.x);
+            move_player_packet->SetY(player->position.y);
+            move_player_packet->SetZ(player->position.z);
+            move_player_packet->SetXRot(player->pitch);
+            move_player_packet->SetYRot(player->yaw);
+            move_player_packet->SetOnGround(player->on_ground);
 #if PROTOCOL_VERSION > 767 /* > 1.21.1 */
-            move_player_msg->SetHorizontalCollision(player->horizontal_collision);
+            move_player_packet->SetHorizontalCollision(player->horizontal_collision);
 #endif
-            network_manager->Send(move_player_msg);
+            network_manager->Send(move_player_packet);
         }
         else if (has_moved)
         {
-            std::shared_ptr<ServerboundMovePlayerPacketPos> move_player_msg = std::make_shared<ServerboundMovePlayerPacketPos>();
-            move_player_msg->SetX(player->position.x);
-            move_player_msg->SetY(player->position.y);
-            move_player_msg->SetZ(player->position.z);
-            move_player_msg->SetOnGround(player->on_ground);
+            std::shared_ptr<ServerboundMovePlayerPacketPos> move_player_packet = std::make_shared<ServerboundMovePlayerPacketPos>();
+            move_player_packet->SetX(player->position.x);
+            move_player_packet->SetY(player->position.y);
+            move_player_packet->SetZ(player->position.z);
+            move_player_packet->SetOnGround(player->on_ground);
 #if PROTOCOL_VERSION > 767 /* > 1.21.1 */
-            move_player_msg->SetHorizontalCollision(player->horizontal_collision);
+            move_player_packet->SetHorizontalCollision(player->horizontal_collision);
 #endif
-            network_manager->Send(move_player_msg);
+            network_manager->Send(move_player_packet);
         }
         else if (has_rotated)
         {
-            std::shared_ptr<ServerboundMovePlayerPacketRot> move_player_msg = std::make_shared<ServerboundMovePlayerPacketRot>();
-            move_player_msg->SetXRot(player->pitch);
-            move_player_msg->SetYRot(player->yaw);
-            move_player_msg->SetOnGround(player->on_ground);
+            std::shared_ptr<ServerboundMovePlayerPacketRot> move_player_packet = std::make_shared<ServerboundMovePlayerPacketRot>();
+            move_player_packet->SetXRot(player->pitch);
+            move_player_packet->SetYRot(player->yaw);
+            move_player_packet->SetOnGround(player->on_ground);
 #if PROTOCOL_VERSION > 767 /* > 1.21.1 */
-            move_player_msg->SetHorizontalCollision(player->horizontal_collision);
+            move_player_packet->SetHorizontalCollision(player->horizontal_collision);
 #endif
-            network_manager->Send(move_player_msg);
+            network_manager->Send(move_player_packet);
         }
         else if (player->on_ground != player->previous_on_ground
 #if PROTOCOL_VERSION > 767 /* > 1.21.1 */
@@ -974,15 +1038,15 @@ namespace Botcraft
             )
         {
 #if PROTOCOL_VERSION > 754 /* > 1.16.5 */
-            std::shared_ptr<ServerboundMovePlayerPacketStatusOnly> move_player_msg = std::make_shared<ServerboundMovePlayerPacketStatusOnly>();
+            std::shared_ptr<ServerboundMovePlayerPacketStatusOnly> move_player_packet = std::make_shared<ServerboundMovePlayerPacketStatusOnly>();
 #else
-            std::shared_ptr<ServerboundMovePlayerPacket> move_player_msg = std::make_shared<ServerboundMovePlayerPacket>();
+            std::shared_ptr<ServerboundMovePlayerPacket> move_player_packet = std::make_shared<ServerboundMovePlayerPacket>();
 #endif
-            move_player_msg->SetOnGround(player->on_ground);
+            move_player_packet->SetOnGround(player->on_ground);
 #if PROTOCOL_VERSION > 767 /* > 1.21.1 */
-            move_player_msg->SetHorizontalCollision(player->horizontal_collision);
+            move_player_packet->SetHorizontalCollision(player->horizontal_collision);
 #endif
-            network_manager->Send(move_player_msg);
+            network_manager->Send(move_player_packet);
         }
 
         if (has_moved)
@@ -1254,7 +1318,14 @@ namespace Botcraft
             const float friction = below_block == nullptr ? 0.6f : below_block->GetFriction();
             const float inertia = player->on_ground ? friction * 0.91f : 0.91f;
 
-            ApplyInputs(player->on_ground ? (static_cast<float>(player->GetAttributeMovementSpeedValueImpl()) * (0.21600002f / (friction * friction * friction))) : 0.02f);
+            ApplyInputs(player->on_ground ?
+                (static_cast<float>(player->GetAttributeMovementSpeedValueImpl()) * (0.21600002f / (friction * friction * friction))) :
+#if PROTOCOL_VERSION < 762 /* < 1.19.4 */
+                player->GetDataSharedFlagsIdImpl(EntitySharedFlagsId::Sprinting) ? 0.02f + 0.006f : 0.02f // flying_speed updated during Player::aiStep call
+#else
+                player->GetDataSharedFlagsIdImpl(EntitySharedFlagsId::Sprinting) ? 0.025999999f : 0.02f // Player::getFlyingSpeed overload
+#endif
+            );
             if (player->on_climbable)
             { // LivingEntity::handleOnClimbable
                 player->speed.x = std::clamp(player->speed.x, -0.15000000596046448, 0.15000000596046448);
@@ -1505,13 +1576,13 @@ namespace Botcraft
     void PhysicsManager::OnUpdateAbilities() const
     {
         player->UpdateAbilitiesFlagsImpl();
-        std::shared_ptr<ServerboundPlayerAbilitiesPacket> abilities_msg = std::make_shared<ServerboundPlayerAbilitiesPacket>();
-        abilities_msg->SetFlags(player->abilities_flags);
+        std::shared_ptr<ServerboundPlayerAbilitiesPacket> abilities_packet = std::make_shared<ServerboundPlayerAbilitiesPacket>();
+        abilities_packet->SetFlags(player->abilities_flags);
 #if PROTOCOL_VERSION < 727 /* < 1.16 */
-        abilities_msg->SetFlyingSpeed(player->flying_speed);
-        abilities_msg->SetWalkingSpeed(player->walking_speed);
+        abilities_packet->SetFlyingSpeed(player->flying_speed);
+        abilities_packet->SetWalkingSpeed(player->walking_speed);
 #endif
-        network_manager->Send(abilities_msg);
+        network_manager->Send(abilities_packet);
     }
 
     void PhysicsManager::CheckInsideBlocks() const

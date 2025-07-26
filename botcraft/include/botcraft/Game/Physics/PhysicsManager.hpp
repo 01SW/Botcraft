@@ -45,16 +45,21 @@ namespace Botcraft
         void StartPhysics();
         void StopPhysics();
 
+        /// @brief Enable/disable auto triggering of sprint when press/unpress/press forward key
+        /// in less than 7 ticks (enabled by default)
+        /// @param b Double tap will start sprinting if b is true
+        void SetDoubleTapCauseSprint(const bool b);
+
         double GetMsPerTick() const;
 
     protected:
-        virtual void Handle(ProtocolCraft::ClientboundLoginPacket& msg) override;
-        virtual void Handle(ProtocolCraft::ClientboundPlayerPositionPacket& msg) override;
+        virtual void Handle(ProtocolCraft::ClientboundLoginPacket& packet) override;
+        virtual void Handle(ProtocolCraft::ClientboundPlayerPositionPacket& packet) override;
 #if PROTOCOL_VERSION > 764 /* > 1.20.2 */
-        virtual void Handle(ProtocolCraft::ClientboundTickingStatePacket& msg) override;
+        virtual void Handle(ProtocolCraft::ClientboundTickingStatePacket& packet) override;
 #endif
 #if PROTOCOL_VERSION > 767 /* > 1.21.1 */
-        virtual void Handle(ProtocolCraft::ClientboundPlayerRotationPacket& msg) override;
+        virtual void Handle(ProtocolCraft::ClientboundPlayerRotationPacket& packet) override;
 #endif
 
     private:
@@ -116,6 +121,8 @@ namespace Botcraft
 #else
         static constexpr double ms_per_tick = 50.0;
 #endif
+
+        std::atomic<bool> double_tap_cause_sprint;
 
     };
 } // Botcraft

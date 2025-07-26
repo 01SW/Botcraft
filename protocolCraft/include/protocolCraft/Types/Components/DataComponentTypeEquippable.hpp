@@ -16,12 +16,21 @@ namespace ProtocolCraft
         {
             SERIALIZED_FIELD(Slot, VarInt);
             SERIALIZED_FIELD(EquipSound, Holder<SoundEvent>);
+#if PROTOCOL_VERSION < 769 /* < 1.21.4 */
             SERIALIZED_FIELD(Model, std::optional<Identifier>);
+#else
+            SERIALIZED_FIELD(AssetId, std::optional<Identifier>);
+#endif
             SERIALIZED_FIELD(CameraOverlay, std::optional<Identifier>);
             SERIALIZED_FIELD(AllowedEntities, std::optional<HolderSet>);
             SERIALIZED_FIELD(Dispensable, bool);
             SERIALIZED_FIELD(Swappable, bool);
             SERIALIZED_FIELD(DamageOnHurt, bool);
+#if PROTOCOL_VERSION > 770 /* > 1.21.5 */
+            SERIALIZED_FIELD(EquipOnInteract, bool);
+            SERIALIZED_FIELD(CanBeSheared, bool);
+            SERIALIZED_FIELD(ShearingSound, Holder<SoundEvent>);
+#endif
 
             DECLARE_READ_WRITE_SERIALIZE;
         };
