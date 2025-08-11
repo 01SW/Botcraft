@@ -8,6 +8,7 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include <functional>
 
 #if PROTOCOL_VERSION > 759 /* > 1.19 */
 #include "botcraft/Network/LastSeenMessagesTracker.hpp"
@@ -31,6 +32,7 @@ namespace Botcraft
         // but is always in constant_connection_state
         NetworkManager(const ProtocolCraft::ConnectionState constant_connection_state);
         ~NetworkManager();
+        void bindExceptionHandle(const std::function<void(const std::string&)> &func);
 
         void Stop();
 
@@ -115,5 +117,6 @@ namespace Botcraft
         std::chrono::steady_clock::time_point chunk_batch_start_time;
 #endif
 
+        std::function<void(const std::string&)> func_exception;
     };
 }

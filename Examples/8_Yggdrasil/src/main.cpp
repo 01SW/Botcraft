@@ -21,7 +21,7 @@ void ShowHelp(const char *argv0)
 struct Args
 {
     bool help = false;
-    std::string address = "10.0.0.103:25565";
+    std::string address = "10.0.0.13:25565";
     std::string email = "bot1@ws01.ltd";
     std::string password = "bot1@ws01.ltd";
     std::string url = "https://mc.login.kim:6066/api/yggdrasil";
@@ -67,9 +67,11 @@ int main(int argc, char *argv[])
         client.Connect(args.address, args.url, args.email, args.password);
 
         std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+        LOG_INFO("Send message");
         client.SendChatMessage(u8"Hello, World!");
         std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 
+        LOG_INFO("Disconnect");
         client.Disconnect();
 
         return 0;

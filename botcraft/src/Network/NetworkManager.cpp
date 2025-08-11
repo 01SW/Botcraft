@@ -168,6 +168,10 @@ namespace Botcraft
         Stop();
     }
 
+    void NetworkManager::bindExceptionHandle(const std::function<void(const std::string &)> &func) {
+        func_exception = func;
+    }
+
     void NetworkManager::Stop()
     {
         state = ConnectionState::None;
@@ -420,12 +424,20 @@ namespace Botcraft
         catch (const std::exception& e)
         {
             LOG_FATAL("Exception:\n" << e.what());
-            throw;
+            if (func_exception) {
+                func_exception(e.what());
+            } else {
+                throw;
+            }
         }
         catch (...)
         {
             LOG_FATAL("Unknown exception");
-            throw;
+            if (func_exception) {
+                func_exception("Unknown exception");
+            } else {
+                throw;
+            }
         }
     }
 
